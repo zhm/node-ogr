@@ -1,0 +1,42 @@
+{
+  "name"          : "node-ogr",
+  "description"   : "OGR bindings for node",
+  "url"           : "http://github.com/zhm/node-ogr",
+  "version"       : "0.0.1",
+  "main"          : "./lib/ogr.js",
+  "keywords"      : ["gis", "geography", "vector", "gdal", "ogr"],
+  "repositories" : [
+     {
+         "type" : "git",
+         "url"  : "git://github.com/zhm/node-ogr.git"
+     }
+  ],
+  "author": {
+      "name"  : "Zac McCormick",
+      "url"   : "http://github.com/zhm",
+      "email" : "zac.mccormick@gmail.com"
+   },
+  "contributors"  : [],
+  "licenses"      : [{"type": "BSD"}],
+  "dependencies"  : {
+    "underscore": "*",
+    "coffee-script": "*"
+  },
+  "devDependencies": {
+    "expresso": "~0.9.x",
+    "mocha"   : "*",
+    "should"  : "~0.6.x",
+    "jshint"  : "~0.5.x"
+   },
+  "directories"  : {
+     "examples" : "examples",
+     "src": "src"
+  },
+  "main"          : "./lib",
+  "engines"       : { "node": ">=0.6.0" },
+  "scripts"       : {
+      "install" : "node-waf -v configure build",
+      "pretest" : "npm install --dev",
+      "test"    : "make test"
+   }
+}

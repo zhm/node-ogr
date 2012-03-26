@@ -1,0 +1,89 @@
+
+#include "ogr_common.hpp"
+#include "ogr_field_defn.hpp"
+
+// boost
+#include <boost/scoped_ptr.hpp>
+#include <boost/make_shared.hpp>
+
+Persistent<FunctionTemplate> FieldDefn::constructor;
+
+void FieldDefn::Initialize(Handle<Object> target) {
+  HandleScope scope;
+
+  constructor = Persistent<FunctionTemplate>::New(FunctionTemplate::New(FieldDefn::New));
+  constructor->InstanceTemplate()->SetInternalFieldCount(1);
+  constructor->SetClassName(String::NewSymbol("FieldDefn"));
+
+  NODE_SET_PROTOTYPE_METHOD(constructor, "toString", toString);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getName", getName);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "setName", setName);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getType", getType);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "setType", setType);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getJustify", getJustify);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "setJustify", setJustify);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getWidth", getWidth);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "setWidth", setWidth);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getPrecision", getPrecision);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "setPrecision", setPrecision);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "isIgnored", isIgnored);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "setIgnored", setIgnored);
+
+  target->Set(String::NewSymbol("FieldDefn"), constructor->GetFunction());
+}
+
+FieldDefn::FieldDefn(OGRFieldDefn *layer)
+: ObjectWrap(),
+  this_(layer)
+{}
+
+FieldDefn::FieldDefn()
+: ObjectWrap(),
+  this_(0)
+{
+}
+
+FieldDefn::~FieldDefn()
+{
+}
+
+Handle<Value> FieldDefn::New(const Arguments& args)
+{
+  HandleScope scope;
+
+  if (!args.IsConstructCall())
+      return ThrowException(String::New("Cannot call constructor as function, you need to use 'new' keyword"));
+
+  if (args[0]->IsExternal()) {
+      Local<External> ext = Local<External>::Cast(args[0]);
+      void* ptr = ext->Value();
+      FieldDefn *f = static_cast<FieldDefn *>(ptr);
+      f->Wrap(args.This());
+      return args.This();
+  }
+
+  return args.This();
+}
+
+Handle<Value> FieldDefn::New(OGRFieldDefn *feature) {
+  return ClosedPtr<FieldDefn, OGRFieldDefn>::Closed(feature);
+}
+
+Handle<Value> FieldDefn::toString(const Arguments& args)
+{
+  HandleScope scope;
+  return scope.Close(String::New("FieldDefn"));
+}
+
+NODE_WRAPPED_METHOD_WITH_1_STRING_PARAM(FieldDefn, setName, SetName, "field name");
+NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getName, String, GetNameRef);
+NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getType, Integer, GetType);
+NODE_WRAPPED_METHOD_WITH_1_ENUM_PARAM(FieldDefn, setType, SetType, OGRFieldType, "field type");
+NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getJustify, Integer, GetJustify);
+NODE_WRAPPED_METHOD_WITH_1_ENUM_PARAM(FieldDefn, setJustify, SetJustify, OGRJustification, "justification");
+NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getWidth, Integer, GetWidth);
+NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(FieldDefn, setWidth, SetWidth, "field width");
+NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getPrecision, Integer, GetPrecision);
+NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(FieldDefn, setPrecision, SetPrecision, "field precision");
+NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, isIgnored, Boolean, IsIgnored);
+NODE_WRAPPED_METHOD_WITH_1_BOOLEAN_PARAM(FieldDefn, setIgnored, SetIgnored, "is ignored");

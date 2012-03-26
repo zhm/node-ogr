@@ -1,0 +1,14 @@
+.lock-wscript
+build/
+run
+tags
+types_*
+build/*.node
+lib/ogr.node
+node_modules
+docs/test.html
+*.dbf
+*.shp
+*.shx
+*.prj
+*.qpj
