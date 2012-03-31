@@ -20,7 +20,9 @@ class Feature: public node::ObjectWrap {
     static void Initialize(Handle<Object> target);
     static Handle<Value> New(const Arguments &args);
     static Handle<Value> New(OGRFeature *feature);
+    static Handle<Value> New(OGRFeature *feature, bool owned);
     static Handle<Value> toString(const Arguments &args);
+    static Handle<Value> getDefn(const Arguments &args);
     static Handle<Value> getGeometry(const Arguments& args);
     static Handle<Value> setGeometryDirectly(const Arguments& args);
     static Handle<Value> setGeometry(const Arguments& args);
@@ -53,6 +55,8 @@ class Feature: public node::ObjectWrap {
   private:
     ~Feature();
     OGRFeature *this_;
+    bool owned_;
+    int size_;
 };
 
 #endif

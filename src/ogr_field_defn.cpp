@@ -45,6 +45,9 @@ FieldDefn::FieldDefn()
 
 FieldDefn::~FieldDefn()
 {
+  if (owned_) {
+    delete this_;
+  }
 }
 
 Handle<Value> FieldDefn::New(const Arguments& args)
@@ -65,8 +68,25 @@ Handle<Value> FieldDefn::New(const Arguments& args)
   return args.This();
 }
 
-Handle<Value> FieldDefn::New(OGRFieldDefn *feature) {
-  return ClosedPtr<FieldDefn, OGRFieldDefn>::Closed(feature);
+Handle<Value> FieldDefn::New(OGRFieldDefn *def) {
+  v8::HandleScope scope;
+  FieldDefn *wrapped = new FieldDefn(def);
+  //wrapped->size_ = geom->WkbSize();
+  //V8::AdjustAmountOfExternalAllocatedMemory(wrapped->size_);
+
+  v8::Handle<v8::Value> ext = v8::External::New(wrapped);
+  v8::Handle<v8::Object> obj = FieldDefn::constructor->GetFunction()->NewInstance(1, &ext);
+
+  return scope.Close(obj);
+}
+
+Handle<Value> FieldDefn::New(OGRFieldDefn *def, bool owned) {
+  v8::HandleScope scope;
+  FieldDefn *wrapped = new FieldDefn(def);
+  wrapped->owned_ = owned;
+  v8::Handle<v8::Value> ext = v8::External::New(wrapped);
+  v8::Handle<v8::Object> obj = FieldDefn::constructor->GetFunction()->NewInstance(1, &ext);
+  return scope.Close(obj);
 }
 
 Handle<Value> FieldDefn::toString(const Arguments& args)

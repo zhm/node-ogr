@@ -219,7 +219,7 @@ Handle<Value> Geometry::polygonize(const Arguments& args)
   OGRGeometry *polygonized = geom->this_->Polygonize();
 
   if (polygonized != NULL) {
-    scope.Close(Geometry::New(polygonized));
+    return scope.Close(Geometry::New(polygonized));
   } else {
     return Null();
   }

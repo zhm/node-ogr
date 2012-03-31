@@ -37,17 +37,22 @@ void FeatureDefn::Initialize(Handle<Object> target) {
 
 FeatureDefn::FeatureDefn(OGRFeatureDefn *layer)
 : ObjectWrap(),
-  this_(layer)
+  this_(layer),
+  owned_(true)
 {}
 
 FeatureDefn::FeatureDefn()
 : ObjectWrap(),
-  this_(0)
+  this_(0),
+  owned_(true)
 {
 }
 
 FeatureDefn::~FeatureDefn()
 {
+  if (owned_) {
+    delete this_;
+  }
 }
 
 Handle<Value> FeatureDefn::New(const Arguments& args)
@@ -68,8 +73,25 @@ Handle<Value> FeatureDefn::New(const Arguments& args)
   return args.This();
 }
 
-Handle<Value> FeatureDefn::New(OGRFeatureDefn *feature) {
-  return ClosedPtr<FeatureDefn, OGRFeatureDefn>::Closed(feature);
+Handle<Value> FeatureDefn::New(OGRFeatureDefn *def) {
+  v8::HandleScope scope;
+  FeatureDefn *wrapped = new FeatureDefn(def);
+  //wrapped->size_ = geom->WkbSize();
+  //V8::AdjustAmountOfExternalAllocatedMemory(wrapped->size_);
+
+  v8::Handle<v8::Value> ext = v8::External::New(wrapped);
+  v8::Handle<v8::Object> obj = FeatureDefn::constructor->GetFunction()->NewInstance(1, &ext);
+
+  return scope.Close(obj);
+}
+
+Handle<Value> FeatureDefn::New(OGRFeatureDefn *def, bool owned) {
+  v8::HandleScope scope;
+  FeatureDefn *wrapped = new FeatureDefn(def);
+  wrapped->owned_ = owned;
+  v8::Handle<v8::Value> ext = v8::External::New(wrapped);
+  v8::Handle<v8::Object> obj = FeatureDefn::constructor->GetFunction()->NewInstance(1, &ext);
+  return scope.Close(obj);
 }
 
 Handle<Value> FeatureDefn::toString(const Arguments& args)

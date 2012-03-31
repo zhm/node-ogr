@@ -1,7 +1,9 @@
 
 #include "ogr_common.hpp"
 #include "ogr_feature.hpp"
+#include "ogr_feature_defn.hpp"
 #include "ogr_geometry.hpp"
+#include "ogr_field_defn.hpp"
 
 // boost
 #include <boost/scoped_ptr.hpp>
@@ -42,17 +44,22 @@ void Feature::Initialize(Handle<Object> target) {
 
 Feature::Feature(OGRFeature *layer)
 : ObjectWrap(),
-  this_(layer)
+  this_(layer),
+  owned_(true)
 {}
 
 Feature::Feature()
 : ObjectWrap(),
-  this_(0)
+  this_(0),
+  owned_(true)
 {
 }
 
 Feature::~Feature()
 {
+  if (owned_) {
+    delete this_;
+  }
 }
 
 Handle<Value> Feature::New(const Arguments& args)
@@ -74,13 +81,29 @@ Handle<Value> Feature::New(const Arguments& args)
 }
 
 Handle<Value> Feature::New(OGRFeature *feature) {
-  return ClosedPtr<Feature, OGRFeature>::Closed(feature);
+  v8::HandleScope scope;
+  Feature *wrapped = new Feature(feature);
+  //wrapped->size_ = geom->WkbSize();
+  //V8::AdjustAmountOfExternalAllocatedMemory(wrapped->size_);
+
+  v8::Handle<v8::Value> ext = v8::External::New(wrapped);
+  v8::Handle<v8::Object> obj = Feature::constructor->GetFunction()->NewInstance(1, &ext);
+
+  return scope.Close(obj);
+}
+
+Handle<Value> Feature::New(OGRFeature *feature, bool owned) {
+  v8::HandleScope scope;
+  Feature *wrapped = new Feature(feature);
+  wrapped->owned_ = owned;
+  v8::Handle<v8::Value> ext = v8::External::New(wrapped);
+  v8::Handle<v8::Object> obj = Feature::constructor->GetFunction()->NewInstance(1, &ext);
+  return scope.Close(obj);
 }
 
 Handle<Value> Feature::toString(const Arguments& args)
 {
-  HandleScope scope;
-  return scope.Close(String::New("Feature"));
+  return HandleScope().Close(String::New("Feature"));
 }
 
 
@@ -89,8 +112,20 @@ Handle<Value> Feature::getGeometry(const Arguments& args)
   return HandleScope().Close(Geometry::New(ObjectWrap::Unwrap<Feature>(args.This())->this_->GetGeometryRef(), false));
 }
 
+Handle<Value> Feature::getDefn(const Arguments& args)
+{
+  return HandleScope().Close(FeatureDefn::New(ObjectWrap::Unwrap<Feature>(args.This())->this_->GetDefnRef(), false));
+}
+
+Handle<Value> Feature::getFieldDefn(const Arguments& args)
+{
+  int field_index;
+  NODE_ARG_INT(0, "field index", field_index);
+  return HandleScope().Close(FieldDefn::New(ObjectWrap::Unwrap<Feature>(args.This())->this_->GetFieldDefnRef(field_index), false));
+}
+
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, setGeometry, Integer, SetGeometry, Geometry, "geometry");
-NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, setGeometryDirectly, Integer, SetGeometryDirectly, Geometry, "geometry");
+//NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, setGeometryDirectly, Integer, SetGeometryDirectly, Geometry, "geometry");
 //NODE_WRAPPED_METHOD_WITH_RESULT(Feature, getGeometry, Geometry, GetGeometryRef);
 NODE_WRAPPED_METHOD_WITH_RESULT(Feature, stealGeometry, Geometry, StealGeometry);
 NODE_WRAPPED_METHOD_WITH_RESULT(Feature, clone, Feature, Clone);
@@ -137,4 +172,23 @@ Handle<Value> Feature::setField(const Arguments& args)
   }
 
   return Undefined();
+}
+
+
+
+Handle<Value> Feature::setGeometryDirectly(const Arguments& args)
+{
+  HandleScope scope;
+  Geometry *geom;
+  NODE_ARG_WRAPPED(0, "geometry", Geometry, geom);
+
+  Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
+
+  OGRErr err = feature->this_->SetGeometryDirectly(geom->get());
+
+  if (err == OGRERR_NONE) {
+    geom->owned_ = false;
+  }
+
+  return scope.Close(Integer::New(err));
 }

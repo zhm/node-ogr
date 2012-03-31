@@ -15,6 +15,8 @@ using namespace v8;
 using namespace node;
 
 class Geometry: public node::ObjectWrap {
+  friend class Feature;
+
   public:
     static Persistent<FunctionTemplate> constructor;
     static void Initialize(Handle<Object> target);

@@ -20,6 +20,7 @@ class FieldDefn: public node::ObjectWrap {
     static void Initialize(Handle<Object> target);
     static Handle<Value> New(const Arguments &args);
     static Handle<Value> New(OGRFieldDefn *def);
+    static Handle<Value> New(OGRFieldDefn *def, bool owned);
     static Handle<Value> toString(const Arguments &args);
     static Handle<Value> setName(const Arguments &args);
     static Handle<Value> getName(const Arguments &args);
@@ -43,6 +44,7 @@ class FieldDefn: public node::ObjectWrap {
   private:
     ~FieldDefn();
     OGRFieldDefn *this_;
+    bool owned_;
 };
 
 #endif

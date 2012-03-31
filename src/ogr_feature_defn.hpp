@@ -20,6 +20,7 @@ class FeatureDefn: public node::ObjectWrap {
     static void Initialize(Handle<Object> target);
     static Handle<Value> New(const Arguments &args);
     static Handle<Value> New(OGRFeatureDefn *def);
+    static Handle<Value> New(OGRFeatureDefn *def, bool owned);
     static Handle<Value> toString(const Arguments &args);
     static Handle<Value> getName(const Arguments &args);
     static Handle<Value> getFieldCount(const Arguments &args);
@@ -43,6 +44,7 @@ class FeatureDefn: public node::ObjectWrap {
   private:
     ~FeatureDefn();
     OGRFeatureDefn *this_;
+    bool owned_;
 };
 
 #endif

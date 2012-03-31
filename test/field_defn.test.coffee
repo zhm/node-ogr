@@ -16,6 +16,10 @@ describe 'FieldDefn', ->
   it "should be able to get the name of the field", ->
     defn.getName().should.eql("ogc_fid")
 
+  it "should be able to set the name of the field", ->
+    defn.setName("new_name")
+    defn.getName().should.eql("new_name")
+
   it "should be able to get the type of the field", ->
     defn.getType().should.eql(0)
 

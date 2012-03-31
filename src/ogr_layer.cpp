@@ -151,4 +151,10 @@ NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Layer, testCapability, Boolean, T
 NODE_WRAPPED_METHOD(Layer, syncToDisk, SyncToDisk);
 NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getFIDColumn, String, GetFIDColumn);
 NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getGeometryColumn, String, GetGeometryColumn);
-NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getLayerDefn, FeatureDefn, GetLayerDefn);
+//NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getLayerDefn, FeatureDefn, GetLayerDefn);
+
+
+Handle<Value> Layer::getLayerDefn(const Arguments& args)
+{
+  return HandleScope().Close(FeatureDefn::New(ObjectWrap::Unwrap<Layer>(args.This())->this_->GetLayerDefn(), false));
+}
