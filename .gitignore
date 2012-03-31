@@ -1,8 +1,8 @@
 .lock-wscript
 build/
-run
 tags
 types_*
+taghl_config.txt
 build/*.node
 lib/ogr.node
 node_modules

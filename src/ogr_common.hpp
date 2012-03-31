@@ -4,6 +4,8 @@
 
 #include <v8.h>
 
+#include <boost/shared_ptr.hpp>
+
 #define TOSTR(obj) (*String::Utf8Value((obj)->ToString()))
 
 
@@ -154,6 +156,16 @@ Handle<Value> klass::method(const Arguments& args)                              
   return scope.Close(result_type::New(ObjectWrap::Unwrap<klass>(args.This())->this_->wrapped_method(param)));  \
 }
 
+
+#define NODE_WRAPPED_METHOD_WITH_RESULT_1_DOUBLE_PARAM(klass, method, result_type, wrapped_method, param_name)   \
+Handle<Value> klass::method(const Arguments& args)                                                                            \
+{                                                                                                                             \
+  HandleScope scope; \
+  double param; \
+  NODE_ARG_DOUBLE(0, #param_name, param); \
+  return scope.Close(result_type::New(ObjectWrap::Unwrap<klass>(args.This())->this_->wrapped_method(param)));  \
+}
+
 #define NODE_WRAPPED_METHOD(klass, method, wrapped_method)           \
 Handle<Value> klass::method(const Arguments& args)                   \
 {                                                                    \
@@ -169,6 +181,16 @@ Handle<Value> klass::method(const Arguments& args)                              
   HandleScope scope;                                                                        \
   int param;                                                                                \
   NODE_ARG_INT(0, #param_name, param);                                                      \
+  ObjectWrap::Unwrap<klass>(args.This())->this_->wrapped_method(param);                     \
+  return Undefined();                                                                       \
+}
+
+#define NODE_WRAPPED_METHOD_WITH_1_DOUBLE_PARAM(klass, method, wrapped_method, param_name)  \
+Handle<Value> klass::method(const Arguments& args)                                          \
+{                                                                                           \
+  HandleScope scope;                                                                        \
+  double param;                                                                             \
+  NODE_ARG_DOUBLE(0, #param_name, param);                                                   \
   ObjectWrap::Unwrap<klass>(args.This())->this_->wrapped_method(param);                     \
   return Undefined();                                                                       \
 }
@@ -208,7 +230,7 @@ Handle<Value> klass::method(const Arguments& args)                              
 
 #define NODE_THROW(msg) ThrowException(Exception::Error(String::New(msg)));
 
-template <class T, class K>
+template <typename T, typename K>
 class ClosedPtr {
 public:
   static v8::Handle<v8::Value> Closed(K *raw) {

@@ -13,8 +13,8 @@ describe 'Geometry', ->
 
   beforeEach ->
     layer.resetReading()
-    geom = layer.getNextFeature().getGeometry()
-    geom_other = layer.getNextFeature().getGeometry()
+    geom = layer.getFeature(0).getGeometry()
+    geom_other = layer.getFeature(1).getGeometry()
 
   it "should be an instance of Geometry", ->
     geom.should.be.an.instanceof ogr.Geometry
@@ -57,6 +57,9 @@ describe 'Geometry', ->
 
   it "should be able to get the geometry type", ->
     geom.getGeometryType().should.eql(ogr.wkbPoint)
+
+  it "should be able to get the geometry name", ->
+    geom.getGeometryName().should.eql('POINT')
 
   it "should be able perform spatial comparisons", ->
     comparisons =
@@ -145,3 +148,31 @@ describe 'Geometry', ->
 
   it "should be equal to the same geometry", ->
     geom.clone().equals(geom).should.be.true
+
+  it "should be able to calculate the centroid", ->
+    geom.centroid().should.be.an.instanceof(ogr.Geometry)
+
+  it "should be able to be segmentized", ->
+    geom.segmentize(9.0)
+    geom.should.be.an.instanceof(ogr.Geometry)
+
+    (-> geom.segmentize()).should.throw()
+    (-> geom.segmentize({})).should.throw()
+    (-> geom.segmentize('invalid parameter')).should.throw()
+
+  it "should be able to be segmentized", ->
+    geom.segmentize(9.0)
+    geom.should.be.an.instanceof(ogr.Geometry)
+
+    (-> geom.segmentize()).should.throw()
+    (-> geom.segmentize({})).should.throw()
+    (-> geom.segmentize('invalid parameter')).should.throw()
+
+  it "should be able to calculate the boundary", ->
+    geom.boundary().should.be.an.instanceof(ogr.Geometry)
+
+  it "should be able to calculate the distance to another geometry", ->
+    geom.distance(geom_other).should.eql(4.451300147814102)
+
+  it "should be able to be polygonized", ->
+    (-> geom.polygonize()).should.throw()

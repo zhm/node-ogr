@@ -20,6 +20,7 @@ class Geometry: public node::ObjectWrap {
     static void Initialize(Handle<Object> target);
     static Handle<Value> New(const Arguments &args);
     static Handle<Value> New(OGRGeometry *geom);
+    static Handle<Value> New(OGRGeometry *geom, bool owned);
     static Handle<Value> toString(const Arguments &args);
     static Handle<Value> getDimension(const Arguments &args);
     static Handle<Value> getCoordinateDimension(const Arguments &args);
@@ -54,7 +55,7 @@ class Geometry: public node::ObjectWrap {
     static Handle<Value> unionCascaded(const Arguments &args);
     static Handle<Value> difference(const Arguments &args);
     static Handle<Value> symDifference(const Arguments &args);
-    //static Handle<Value> centroid(const Arguments &args);
+    static Handle<Value> centroid(const Arguments &args);
     static Handle<Value> simplify(const Arguments &args);
     static Handle<Value> simplifyPreserveTopology(const Arguments &args);
     static Handle<Value> polygonize(const Arguments &args);
@@ -67,6 +68,8 @@ class Geometry: public node::ObjectWrap {
   private:
     ~Geometry();
     OGRGeometry *this_;
+    bool owned_;
+    int size_;
 };
 
 #endif

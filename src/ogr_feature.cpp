@@ -83,9 +83,15 @@ Handle<Value> Feature::toString(const Arguments& args)
   return scope.Close(String::New("Feature"));
 }
 
+
+Handle<Value> Feature::getGeometry(const Arguments& args)
+{
+  return HandleScope().Close(Geometry::New(ObjectWrap::Unwrap<Feature>(args.This())->this_->GetGeometryRef(), false));
+}
+
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, setGeometry, Integer, SetGeometry, Geometry, "geometry");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, setGeometryDirectly, Integer, SetGeometryDirectly, Geometry, "geometry");
-NODE_WRAPPED_METHOD_WITH_RESULT(Feature, getGeometry, Geometry, GetGeometryRef);
+//NODE_WRAPPED_METHOD_WITH_RESULT(Feature, getGeometry, Geometry, GetGeometryRef);
 NODE_WRAPPED_METHOD_WITH_RESULT(Feature, stealGeometry, Geometry, StealGeometry);
 NODE_WRAPPED_METHOD_WITH_RESULT(Feature, clone, Feature, Clone);
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, equal, Boolean, Equal, Feature, "feature");

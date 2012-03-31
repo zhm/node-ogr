@@ -48,10 +48,11 @@ void Geometry::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor, "unionCascaded", unionCascaded);
   NODE_SET_PROTOTYPE_METHOD(constructor, "difference", difference);
   NODE_SET_PROTOTYPE_METHOD(constructor, "symDifference", symDifference);
-  //NODE_SET_PROTOTYPE_METHOD(constructor, "centroid", centroid);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "centroid", centroid);
   NODE_SET_PROTOTYPE_METHOD(constructor, "simplify", simplify);
   NODE_SET_PROTOTYPE_METHOD(constructor, "simplifyPreserveTopology", simplifyPreserveTopology);
   NODE_SET_PROTOTYPE_METHOD(constructor, "polygonize", polygonize);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "segmentize", segmentize);
   NODE_SET_PROTOTYPE_METHOD(constructor, "swapXY", swapXY);
 
   target->Set(String::NewSymbol("Geometry"), constructor->GetFunction());
@@ -59,17 +60,25 @@ void Geometry::Initialize(Handle<Object> target) {
 
 Geometry::Geometry(OGRGeometry *layer)
 : ObjectWrap(),
-  this_(layer)
+  this_(layer),
+  owned_(true),
+  size_(0)
 {}
 
 Geometry::Geometry()
 : ObjectWrap(),
-  this_(0)
+  this_(NULL),
+  owned_(true),
+  size_(0)
 {
 }
 
 Geometry::~Geometry()
 {
+  if (owned_) {
+    OGRGeometryFactory::destroyGeometry(this_);
+    V8::AdjustAmountOfExternalAllocatedMemory(-size_);
+  }
 }
 
 Handle<Value> Geometry::New(const Arguments& args)
@@ -91,7 +100,24 @@ Handle<Value> Geometry::New(const Arguments& args)
 }
 
 Handle<Value> Geometry::New(OGRGeometry *geom) {
-  return ClosedPtr<Geometry, OGRGeometry>::Closed(geom);
+  v8::HandleScope scope;
+  Geometry *wrapped = new Geometry(geom);
+  wrapped->size_ = geom->WkbSize();
+  V8::AdjustAmountOfExternalAllocatedMemory(wrapped->size_);
+
+  v8::Handle<v8::Value> ext = v8::External::New(wrapped);
+  v8::Handle<v8::Object> obj = Geometry::constructor->GetFunction()->NewInstance(1, &ext);
+
+  return scope.Close(obj);
+}
+
+Handle<Value> Geometry::New(OGRGeometry *geom, bool owned) {
+  v8::HandleScope scope;
+  Geometry *wrapped = new Geometry(geom);
+  wrapped->owned_ = owned;
+  v8::Handle<v8::Value> ext = v8::External::New(wrapped);
+  v8::Handle<v8::Object> obj = Geometry::constructor->GetFunction()->NewInstance(1, &ext);
+  return scope.Close(obj);
 }
 
 Handle<Value> Geometry::toString(const Arguments& args)
@@ -102,209 +128,42 @@ Handle<Value> Geometry::toString(const Arguments& args)
 }
 
 
-Handle<Value> Geometry::getDimension(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Integer::New(geom->this_->getDimension()));
-}
-
-
-Handle<Value> Geometry::getCoordinateDimension(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Integer::New(geom->this_->getCoordinateDimension()));
-}
-
-
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, getDimension, Integer, getDimension);
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, getCoordinateDimension, Integer, getCoordinateDimension);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, isEmpty, Boolean, IsEmpty);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, isValid, Boolean, IsValid);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, isSimple, Boolean, IsSimple);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, isRing, Boolean, IsRing);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, clone, Geometry, clone);
+NODE_WRAPPED_METHOD(Geometry, empty, empty);
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, wkbSize, Integer, WkbSize);
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, getGeometryType, Integer, getGeometryType);
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, getGeometryName, String, getGeometryName);
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, exportToKML, String, exportToKML);
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, exportToGML, String, exportToGML);
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, exportToJSON, String, exportToJson);
+NODE_WRAPPED_METHOD(Geometry, closeRings, closeRings);
+NODE_WRAPPED_METHOD_WITH_1_DOUBLE_PARAM(Geometry, segmentize, segmentize, "segment length");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, intersects, Boolean, Intersects, Geometry, "geometry to compare");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, equals, Boolean, Equals, Geometry, "geometry to compare");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, disjoint, Boolean, Disjoint, Geometry, "geometry to compare");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, touches, Boolean, Touches, Geometry, "geometry to compare");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, crosses, Boolean, Crosses, Geometry, "geometry to compare");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, within, Boolean, Within, Geometry, "geometry to compare");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, contains, Boolean, Contains, Geometry, "geometry to compare");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, overlaps, Boolean, Overlaps, Geometry, "geometry to compare");
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, boundary, Geometry, Boundary);
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, distance, Number, Distance, Geometry, "geometry to use for distance calculation");
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, convexHull, Geometry, ConvexHull);
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, intersection, Geometry, Intersection, Geometry, "geometry to use for intersection");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, unionGeometry, Geometry, Union, Geometry, "geometry to use for union");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, difference, Geometry, Difference, Geometry, "geometry to use for difference");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, symDifference, Geometry, SymDifference, Geometry, "geometry to use for sym difference");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_DOUBLE_PARAM(Geometry, simplify, Geometry, Simplify, "tolerance");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_DOUBLE_PARAM(Geometry, simplifyPreserveTopology, Geometry, SimplifyPreserveTopology, "tolerance");
+NODE_WRAPPED_METHOD(Geometry, swapXY, swapXY);
 
-
-
-Handle<Value> Geometry::empty(const Arguments& args)
-{
-  HandleScope scope;
-
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-
-  geom->this_->empty();
-
-  return Undefined();
-}
-
-
-Handle<Value> Geometry::wkbSize(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Integer::New(geom->this_->WkbSize()));
-}
-
-
-Handle<Value> Geometry::getGeometryType(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Integer::New(geom->this_->getGeometryType()));
-}
-
-
-Handle<Value> Geometry::getGeometryName(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(String::New(geom->this_->getGeometryName()));
-}
-
-
-Handle<Value> Geometry::exportToKML(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(String::New(geom->this_->exportToKML()));
-}
-
-
-Handle<Value> Geometry::exportToGML(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(String::New(geom->this_->exportToGML()));
-}
-
-
-Handle<Value> Geometry::exportToJSON(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(String::New(geom->this_->exportToJson()));
-}
-
-
-Handle<Value> Geometry::closeRings(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  geom->this_->closeRings();
-  return Undefined();
-}
-
-
-Handle<Value> Geometry::segmentize(const Arguments& args)
-{
-  HandleScope scope;
-
-  double max_length;
-
-  NODE_ARG_DOUBLE(0, "segment length", max_length);
-
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-
-  geom->this_->segmentize(max_length);
-
-  return Undefined();
-}
-
-Handle<Value> Geometry::intersects(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to compare", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Boolean::New(geom->this_->Intersects(other->this_)));
-}
-
-Handle<Value> Geometry::equals(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to compare", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Boolean::New(geom->this_->Equals(other->this_)));
-}
-
-Handle<Value> Geometry::disjoint(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to compare", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Boolean::New(geom->this_->Disjoint(other->this_)));
-}
-
-Handle<Value> Geometry::touches(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to compare", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Boolean::New(geom->this_->Touches(other->this_)));
-}
-
-Handle<Value> Geometry::crosses(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to compare", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Boolean::New(geom->this_->Crosses(other->this_)));
-}
-
-Handle<Value> Geometry::within(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to compare", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Boolean::New(geom->this_->Within(other->this_)));
-}
-
-Handle<Value> Geometry::contains(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to compare", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Boolean::New(geom->this_->Contains(other->this_)));
-}
-
-Handle<Value> Geometry::overlaps(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to compare", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Boolean::New(geom->this_->Overlaps(other->this_)));
-}
-
-Handle<Value> Geometry::boundary(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Geometry::New(geom->this_->Boundary()));
-}
-
-Handle<Value> Geometry::distance(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to use for distance calculation", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Number::New(geom->this_->Distance(other->this_)));
-}
-
-Handle<Value> Geometry::convexHull(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Geometry::New(geom->this_->ConvexHull()));
-}
-
+//manually wrap this method because we don't have macros for multiple params
 Handle<Value> Geometry::buffer(const Arguments& args)
 {
   HandleScope scope;
@@ -320,23 +179,6 @@ Handle<Value> Geometry::buffer(const Arguments& args)
   return scope.Close(Geometry::New(geom->this_->Buffer(distance, number_of_segments)));
 }
 
-Handle<Value> Geometry::intersection(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to use for intersection", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Geometry::New(geom->this_->Intersection(other->this_)));
-}
-
-Handle<Value> Geometry::unionGeometry(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to use for union", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Geometry::New(geom->this_->Union(other->this_)));
-}
 
 Handle<Value> Geometry::unionCascaded(const Arguments& args)
 {
@@ -350,67 +192,35 @@ Handle<Value> Geometry::unionCascaded(const Arguments& args)
   return scope.Close(Geometry::New(geom->this_->UnionCascaded()));
 }
 
-Handle<Value> Geometry::difference(const Arguments& args)
+
+// The Centroid method wants the caller to create the point to fill in. Instead
+// of requiring the caller to create the point geometry to fill in, we new up an
+// OGRPoint and put the result into it and return that.
+Handle<Value> Geometry::centroid(const Arguments& args)
 {
   HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to use for difference", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Geometry::New(geom->this_->Difference(other->this_)));
+  OGRPoint *point = new OGRPoint();
+
+  ObjectWrap::Unwrap<Geometry>(args.This())->this_->Centroid(point);
+
+  return scope.Close(Geometry::New(point));
 }
 
-Handle<Value> Geometry::symDifference(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *other;
-  NODE_ARG_WRAPPED(0, "geometry to use for symmetric difference", Geometry, other);
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Geometry::New(geom->this_->SymDifference(other->this_)));
-}
-
-/*Handle<Value> Geometry::centroid(const Arguments& args)*/
-//{
-  //HandleScope scope;
-  //NODE_ARG_WRAPPED(0, "geometry to use for symmetric difference", Geometry, other);
-  //Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  //return scope.Close(Geometry::New(geom->this_->Centroid(centroid)));
-/*}*/
-
-Handle<Value> Geometry::simplify(const Arguments& args)
-{
-  HandleScope scope;
-  double tolerance;
-
-  NODE_ARG_DOUBLE(0, "tolerance", tolerance);
-
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-
-  return scope.Close(Geometry::New(geom->this_->Simplify(tolerance)));
-}
-
-Handle<Value> Geometry::simplifyPreserveTopology(const Arguments& args)
-{
-  HandleScope scope;
-  double tolerance;
-
-  NODE_ARG_DOUBLE(0, "tolerance", tolerance);
-
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-
-  return scope.Close(Geometry::New(geom->this_->SimplifyPreserveTopology(tolerance)));
-}
 
 Handle<Value> Geometry::polygonize(const Arguments& args)
 {
   HandleScope scope;
   Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  return scope.Close(Geometry::New(geom->this_->Polygonize()));
-}
 
-Handle<Value> Geometry::swapXY(const Arguments& args)
-{
-  HandleScope scope;
-  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
-  geom->this_->swapXY();
-  return Undefined();
+  if (geom->this_->getGeometryType() != wkbMultiLineString) {
+    return NODE_THROW("Geometry must be a wkbMultiLineString to polygonize.");
+  }
+
+  OGRGeometry *polygonized = geom->this_->Polygonize();
+
+  if (polygonized != NULL) {
+    scope.Close(Geometry::New(polygonized));
+  } else {
+    return Null();
+  }
 }
