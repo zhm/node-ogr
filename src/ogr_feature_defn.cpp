@@ -51,7 +51,7 @@ FeatureDefn::FeatureDefn()
 FeatureDefn::~FeatureDefn()
 {
   if (owned_) {
-    delete this_;
+    this_->Release();
   }
 }
 

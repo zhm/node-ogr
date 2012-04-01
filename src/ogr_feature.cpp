@@ -19,6 +19,7 @@ void Feature::Initialize(Handle<Object> target) {
   constructor->SetClassName(String::NewSymbol("Feature"));
 
   NODE_SET_PROTOTYPE_METHOD(constructor, "toString", toString);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getDefn", getDefn);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getGeometry", getGeometry);
   NODE_SET_PROTOTYPE_METHOD(constructor, "setGeometryDirectly", setGeometryDirectly);
   NODE_SET_PROTOTYPE_METHOD(constructor, "setGeometry", setGeometry);
@@ -26,18 +27,17 @@ void Feature::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor, "clone", clone);
   NODE_SET_PROTOTYPE_METHOD(constructor, "equal", equal);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldCount", getFieldCount);
-  //NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldDefn", getFieldDefn);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldDefn", getFieldDefn);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldIndex", getFieldIndex);
   NODE_SET_PROTOTYPE_METHOD(constructor, "isFieldSet", isFieldSet);
   NODE_SET_PROTOTYPE_METHOD(constructor, "unsetField", unsetField);
-  //NODE_SET_PROTOTYPE_METHOD(constructor, "getRawField", getRawField);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsInteger", getFieldAsInteger);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsDouble", getFieldAsDouble);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsString", getFieldAsString);
   NODE_SET_PROTOTYPE_METHOD(constructor, "setField", setField);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFID", getFID);
   NODE_SET_PROTOTYPE_METHOD(constructor, "setFID", setFID);
-  //NODE_SET_PROTOTYPE_METHOD(constructor, "setFrom", setFrom);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "setFrom", setFrom);
 
   target->Set(String::NewSymbol("Feature"), constructor->GetFunction());
 }
@@ -58,7 +58,7 @@ Feature::Feature()
 Feature::~Feature()
 {
   if (owned_) {
-    delete this_;
+    OGRFeature::DestroyFeature(this_);
   }
 }
 
@@ -191,4 +191,52 @@ Handle<Value> Feature::setGeometryDirectly(const Arguments& args)
   }
 
   return scope.Close(Integer::New(err));
+}
+
+Handle<Value> Feature::setFrom(const Arguments& args)
+{
+  HandleScope scope;
+  Feature *other_feature;
+  bool forgiving = true;
+  Handle<Array> index_map;
+
+  NODE_ARG_WRAPPED(0, "feature", Feature, other_feature);
+
+  if (args.Length() <= 2) {
+    NODE_ARG_BOOL_OPT(1, "forgiving", forgiving);
+
+    Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
+
+    return scope.Close(Integer::New(feature->this_->SetFrom(other_feature->this_, forgiving ? TRUE : FALSE)));
+  } else if (args.Length() > 2) {
+    NODE_ARG_ARRAY(1, "index map", index_map);
+    NODE_ARG_BOOL_OPT(2, "forgiving", forgiving);
+
+    if (index_map->Length() < 1) {
+      return NODE_THROW("index map must contain at least 1 index");
+    }
+
+    int *index_map_ptr = new int[index_map->Length()];
+
+    for (unsigned index = 0; index < index_map->Length(); index++) {
+      Handle<Value> field_index(index_map->Get(Integer::New(index)));
+
+      if (!field_index->IsUint32()) {
+        delete [] index_map_ptr;
+        return NODE_THROW("index map must contain only integer values");
+      }
+
+      index_map_ptr[index] = (int)field_index->Uint32Value();
+    }
+
+    Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
+
+    OGRErr err = feature->this_->SetFrom(other_feature->this_, index_map_ptr, forgiving ? TRUE : FALSE);
+
+    delete [] index_map_ptr;
+
+    return scope.Close(Integer::New(err));
+  }
+
+  return Undefined();
 }

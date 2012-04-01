@@ -19,7 +19,7 @@ describe 'Layer', ->
     layer.getNextFeature().should.be.an.instanceof ogr.Feature
 
   it "should be able to retrieve the layer definition", ->
-    layer.getLayerDefn().should.be.an.instanceof ogr.FeatureDefn
+    layer.getLayerDefn().should.be.an.instanceof(ogr.FeatureDefn)
 
   it "should be able to retrieve a feature by its index", ->
     layer.getFeature(1).should.be.an.instanceof ogr.Feature

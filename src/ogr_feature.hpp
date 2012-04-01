@@ -34,7 +34,6 @@ class Feature: public node::ObjectWrap {
     static Handle<Value> getFieldIndex(const Arguments& args);
     static Handle<Value> isFieldSet(const Arguments& args);
     static Handle<Value> unsetField(const Arguments& args);
-    static Handle<Value> getRawField(const Arguments& args);
     static Handle<Value> getFieldAsInteger(const Arguments& args);
     static Handle<Value> getFieldAsDouble(const Arguments& args);
     static Handle<Value> getFieldAsString(const Arguments& args);

@@ -41,6 +41,17 @@ static std::string format_version(int version)
 }
 
 extern "C" {
+  enum {
+    Success = 0,
+    NotEnoughData = 1,
+    NotEnoughMemory = 2,
+    UnsupportedGeometryType = 3,
+    UnsupportedOperation = 4,
+    CorruptData = 5,
+    Failure = 6,
+    UnsupportedSRS = 7,
+    InvalidHandle = 8
+  } Error;
 
   static void CPL_STDCALL NodeOGRErrorHandler(CPLErr err, int code, const char *message)
   {
@@ -118,6 +129,15 @@ extern "C" {
     NODE_DEFINE_CONSTANT(target, wkbMultiPolygon25D);
     NODE_DEFINE_CONSTANT(target, wkbGeometryCollection25D);
 
+    NODE_DEFINE_CONSTANT(target, Success);
+    NODE_DEFINE_CONSTANT(target, NotEnoughData);
+    NODE_DEFINE_CONSTANT(target, NotEnoughMemory);
+    NODE_DEFINE_CONSTANT(target, UnsupportedGeometryType);
+    NODE_DEFINE_CONSTANT(target, UnsupportedOperation);
+    NODE_DEFINE_CONSTANT(target, CorruptData);
+    NODE_DEFINE_CONSTANT(target, Failure);
+    NODE_DEFINE_CONSTANT(target, UnsupportedSRS);
+    NODE_DEFINE_CONSTANT(target, InvalidHandle);
   }
 
 }

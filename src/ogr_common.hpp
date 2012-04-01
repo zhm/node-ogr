@@ -50,6 +50,16 @@
   } \
   var = static_cast<double>(args[num]->NumberValue());
 
+#define NODE_ARG_ARRAY(num, name, var) \
+  if (args.Length() < num + 1) { \
+    return ThrowException(Exception::Error(String::New((std::string(name) + " must be given").c_str()))); \
+  } \
+\
+  if (!args[num]->IsArray()) { \
+    return ThrowException(Exception::Error(String::New((std::string(name) + " must be an array").c_str()))); \
+  } \
+  var = Handle<Array>::Cast(args[num]);
+
 
 #define NODE_ARG_WRAPPED(num, name, type, var) \
   if (args.Length() < num + 1) { \

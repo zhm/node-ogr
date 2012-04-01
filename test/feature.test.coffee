@@ -6,6 +6,7 @@ describe 'Feature', ->
   valid_file = './test/support/valid_shapefile.shp'
   layer =  ogr.open(valid_file).getLayer()
   feature = layer.getFeature(0)
+  feature_other = layer.getFeature(1)
 
   it "should be an instance of Feature", ->
     feature.should.be.an.instanceof ogr.Feature
@@ -19,12 +20,16 @@ describe 'Feature', ->
   it "should be able to set its geometry", ->
     feature2 = layer.getFeature(1)
     feature.clone().setGeometry(feature2.getGeometry()).should.eql(0)
-    feature.clone().setGeometryDirectly(feature2.getGeometry()).should.eql(0)
+    feature.clone().setGeometryDirectly(feature2.stealGeometry()).should.eql(0)
 
-  it "should be able to steal another feature's geometry", ->
-    feature2 = layer.getFeature(1)
-    stolen = feature2.stealGeometry()
-    feature.clone().setGeometryDirectly(stolen).should.eql(0)
+    #TODO: figure out ownership semantics of stealGeometry/setGeometryDirectly
+    #it "should be able to steal another feature's geometry", ->
+    #feature2 = layer.getFeature(5)
+    #stolen_geom = feature2.stealGeometry()
+    #feature.clone().setGeometryDirectly(stolen_geom).should.eql(0)
+    #feature.clone().setGeometryDirectly(stolen_geom.clone()).should.eql(0)
+    #feature.clone().setGeometry(stolen_geom.clone()).should.eql(0)
+    #feature.clone().setGeometry(stolen_geom).should.eql(0)
 
   it "should equal its clone", ->
     feature.clone().equal(feature).should.be.true
@@ -75,3 +80,19 @@ describe 'Feature', ->
   it "should be able to set its feature id", ->
     feature.setFID(1000)
     feature.getFID().should.eql(1000)
+
+  it "should be able to be set from another feature", ->
+    feature.setFrom(feature_other).should.eql ogr.Success
+    feature.setFrom(feature_other, true).should.eql ogr.Success
+    feature.setFrom(feature_other, false).should.eql ogr.Success
+    feature.setFrom(feature_other, [0..16], false).should.eql ogr.Success
+    feature.setFrom(feature_other, [0..16], true).should.eql ogr.Success
+    feature.setFrom(feature_other, [0, 1], true).should.eql ogr.Failure
+
+    (-> feature.setFrom()).should.throw()
+    (-> feature.setFrom({})).should.throw()
+    (-> feature.setFrom(feature_other, '2nd parameter must be a boolean or an array of integers')).should.throw()
+    (-> feature.setFrom(feature_other, {})).should.throw()
+    (-> feature.setFrom(feature_other, ['an array but not of integers'])).should.throw()
+    (-> feature.setFrom(feature_other, ['an array but not of integers'], true)).should.throw()
+    (-> feature.setFrom(feature_other, [0..16], 'an integer array but not boolean 3rd parameter')).should.throw()
