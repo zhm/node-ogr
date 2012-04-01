@@ -9,6 +9,9 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/make_shared.hpp>
 
+// node
+#include <node/node_buffer.h>
+
 Persistent<FunctionTemplate> Feature::constructor;
 
 void Feature::Initialize(Handle<Object> target) {
@@ -34,6 +37,10 @@ void Feature::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsInteger", getFieldAsInteger);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsDouble", getFieldAsDouble);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsString", getFieldAsString);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsIntegerList", getFieldAsIntegerList);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsDoubleList", getFieldAsDoubleList);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsStringList", getFieldAsStringList);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsBinary", getFieldAsBinary);
   NODE_SET_PROTOTYPE_METHOD(constructor, "setField", setField);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFID", getFID);
   NODE_SET_PROTOTYPE_METHOD(constructor, "setFID", setFID);
@@ -236,6 +243,109 @@ Handle<Value> Feature::setFrom(const Arguments& args)
     delete [] index_map_ptr;
 
     return scope.Close(Integer::New(err));
+  }
+
+  return Undefined();
+}
+
+
+Handle<Value> Feature::getFieldAsIntegerList(const Arguments& args)
+{
+  HandleScope scope;
+  int field_index;
+  NODE_ARG_INT(0, "field index", field_index);
+
+  int count_of_values = 0;
+
+  Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
+
+  const int *values = feature->this_->GetFieldAsIntegerList(field_index, &count_of_values);
+
+  assert(count_of_values >= 0);
+
+  Local<Array> return_array = Array::New(count_of_values);
+
+  if (count_of_values > 0) {
+    for (int index = 0; index < count_of_values; index++) {
+      return_array->Set(index, Integer::New(values[index]));
+    }
+  }
+
+  return scope.Close(return_array);
+}
+
+
+Handle<Value> Feature::getFieldAsDoubleList(const Arguments& args)
+{
+  HandleScope scope;
+  int field_index;
+  NODE_ARG_INT(0, "field index", field_index);
+
+  int count_of_values = 0;
+
+  Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
+
+  const double *values = feature->this_->GetFieldAsDoubleList(field_index, &count_of_values);
+
+  assert(count_of_values >= 0);
+
+  Local<Array> return_array = Array::New(count_of_values);
+
+  if (count_of_values > 0) {
+    for (int index = 0; index < count_of_values; index++) {
+      return_array->Set(index, Number::New(values[index]));
+    }
+  }
+
+  return scope.Close(return_array);
+}
+
+
+Handle<Value> Feature::getFieldAsStringList(const Arguments& args)
+{
+  HandleScope scope;
+  int field_index;
+  NODE_ARG_INT(0, "field index", field_index);
+
+  Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
+
+  char **values = feature->this_->GetFieldAsStringList(field_index);
+
+  int count_of_values = CSLCount(values);
+
+  assert(count_of_values >= 0);
+
+  Local<Array> return_array = Array::New(count_of_values);
+
+  if (count_of_values > 0) {
+    for (int index = 0; index < count_of_values; index++) {
+      return_array->Set(index, String::New(values[index]));
+    }
+  }
+
+  return scope.Close(return_array);
+}
+
+
+Handle<Value> Feature::getFieldAsBinary(const Arguments& args)
+{
+  HandleScope scope;
+  int field_index;
+  NODE_ARG_INT(0, "field index", field_index);
+
+  Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
+
+  int count_of_bytes = 0;
+
+  GByte *values = feature->this_->GetFieldAsBinary(field_index, &count_of_bytes);
+
+  assert(count_of_bytes >= 0);
+
+  if (count_of_bytes > 0) {
+    char *data = new char[count_of_bytes];
+    memcpy(data, values, count_of_bytes);
+    Local<Buffer> return_buffer = Buffer::New(data, count_of_bytes);
+    return scope.Close(return_buffer->handle_);
   }
 
   return Undefined();
