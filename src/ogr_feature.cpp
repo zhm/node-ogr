@@ -41,6 +41,7 @@ void Feature::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsDoubleList", getFieldAsDoubleList);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsStringList", getFieldAsStringList);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsBinary", getFieldAsBinary);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldAsDateTime", getFieldAsDateTime);
   NODE_SET_PROTOTYPE_METHOD(constructor, "setField", setField);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFID", getFID);
   NODE_SET_PROTOTYPE_METHOD(constructor, "setFID", setFID);
@@ -349,4 +350,44 @@ Handle<Value> Feature::getFieldAsBinary(const Arguments& args)
   }
 
   return Undefined();
+}
+
+
+Handle<Value> Feature::getFieldAsDateTime(const Arguments& args)
+{
+  HandleScope scope;
+  int field_index;
+  NODE_ARG_INT(0, "field index", field_index);
+
+  Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
+
+  int year, month, day, hour, minute, second, timezone;
+
+  year = month = day = hour = minute = second = timezone = NULL;
+
+  int result = feature->this_->GetFieldAsDateTime(field_index, &year, &month,
+      &day, &hour, &minute, &second, &timezone);
+
+  if (result == TRUE) {
+    Local<Object> hash = Object::New();
+
+    if (year)
+      hash->Set(String::New("year"), Integer::New(year));
+    if (month)
+      hash->Set(String::New("month"), Integer::New(month));
+    if (day)
+      hash->Set(String::New("day"), Integer::New(day));
+    if (hour)
+      hash->Set(String::New("hour"), Integer::New(hour));
+    if (minute)
+      hash->Set(String::New("minute"), Integer::New(minute));
+    if (second)
+      hash->Set(String::New("second"), Integer::New(second));
+    if (timezone)
+      hash->Set(String::New("timezone"), Integer::New(timezone));
+
+    return scope.Close(hash);
+  } else {
+    return Undefined();
+  }
 }
