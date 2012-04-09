@@ -1,6 +1,7 @@
 
 #include "ogr_layer.hpp"
 #include "ogr_datasource.hpp"
+#include "ogr_geometry.hpp"
 #include "ogr_common.hpp"
 
 // boost
@@ -25,13 +26,14 @@ void Datasource::Initialize(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor, "testCapability", testCapability);
     NODE_SET_PROTOTYPE_METHOD(constructor, "executeSQL", executeSQL);
     NODE_SET_PROTOTYPE_METHOD(constructor, "syncToDisk", syncToDisk);
+    NODE_SET_PROTOTYPE_METHOD(constructor, "createLayer", createLayer);
 
     target->Set(String::NewSymbol("Datasource"), constructor->GetFunction());
 }
 
-Datasource::Datasource(OGRDataSource *ds) 
+Datasource::Datasource(OGRDataSource *ds)
 : ObjectWrap(),
-  this_(ds) 
+  this_(ds)
 {}
 
 Datasource::Datasource()
@@ -42,6 +44,7 @@ Datasource::Datasource()
 
 Datasource::~Datasource()
 {
+  //OGRDataSource::DestroyDataSource(this_);
 }
 
 Handle<Value> Datasource::New(const Arguments& args)
@@ -59,8 +62,6 @@ Handle<Value> Datasource::New(const Arguments& args)
       return args.This();
   }
 
-  //Feature* f = new Feature(args[0]->IntegerValue());
-  //f->Wrap(args.This());
   return args.This();
 }
 
@@ -74,113 +75,31 @@ Handle<Value> Datasource::toString(const Arguments& args)
   return scope.Close(String::New("Datasource"));
 }
 
-Handle<Value> Datasource::getName(const Arguments& args)
-{
-  HandleScope scope;
-  Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
-  return scope.Close(String::New(ds->this_->GetName()));
-}
-
-Handle<Value> Datasource::getLayerByName(const Arguments& args)
-{
-  HandleScope scope;
-  std::string layer_name;
-
-  NODE_ARG_STR(0, "layer name", layer_name);
-
-  try {
-    Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
-
-    OGRLayer *layer = ds->this_->GetLayerByName(layer_name.c_str());
-
-    if (layer)
-      return scope.Close(Layer::New(layer));
-
-  } catch (...) {
-    return NODE_THROW("Unknown error. Does the layer exist?");
-  }
-
-  return Undefined();
-}
-
-Handle<Value> Datasource::getLayerCount(const Arguments& args)
-{
-  HandleScope scope;
-
-  Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
-
-  return scope.Close(Integer::New(ds->this_->GetLayerCount()));
-}
-
-Handle<Value> Datasource::getLayer(const Arguments& args)
-{
-  HandleScope scope;
-  int layer_index = 0;
-
-  NODE_ARG_INT_OPT(0, "layer index", layer_index);
-
-  Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
-
-  if (layer_index < 0 || layer_index >= ds->this_->GetLayerCount()) {
-    return NODE_THROW("Invalid layer index.");
-  }
-
-  try {
-    OGRLayer *layer = ds->this_->GetLayer(layer_index);
-
-    if (layer)
-      return scope.Close(Layer::New(layer));
-
-  } catch (...) {
-    return NODE_THROW("Unknown error. Does the layer exist?");
-  }
-
-  return Undefined();
-}
-
-
-Handle<Value> Datasource::deleteLayer(const Arguments& args)
-{
-  HandleScope scope;
-  int layer_index = 0;
-
-  NODE_ARG_INT_OPT(0, "layer index", layer_index);
-
-  Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
-
-  OGRErr err = ds->this_->DeleteLayer(layer_index);
-
-  return scope.Close(Integer::New(err));
-}
-
-
-Handle<Value> Datasource::testCapability(const Arguments& args)
-{
-  HandleScope scope;
-  std::string capability;
-
-  NODE_ARG_STR(0, "capability", capability);
-
-  Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
-
-  int result = ds->this_->TestCapability(capability.c_str());
-
-  return scope.Close(Boolean::New(!!result));
-}
-
-
+NODE_WRAPPED_METHOD_WITH_RESULT(Datasource, getName, String, GetName);
+NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Datasource, getLayerByName, Layer, GetLayerByName, "layer name");
+NODE_WRAPPED_METHOD_WITH_RESULT(Datasource, getLayerCount, Integer, GetLayerCount);
+NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Datasource, getLayer, Layer, GetLayer, "layer index to fetch");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Datasource, deleteLayer, Integer, DeleteLayer, "layer index to delete");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Datasource, testCapability, Integer, TestCapability, "capability to test");
+NODE_WRAPPED_METHOD_WITH_RESULT(Datasource, syncToDisk, Integer, SyncToDisk);
 
 Handle<Value> Datasource::executeSQL(const Arguments& args)
 {
   HandleScope scope;
   std::string sql;
+  std::string sql_dialect;
+  Geometry *spatial_filter = NULL;
 
   NODE_ARG_STR(0, "sql text", sql);
+  NODE_ARG_WRAPPED_OPT(1, "spatial filter geometry", Geometry, spatial_filter);
+  NODE_ARG_OPT_STR(2, "sql dialect", sql_dialect);
 
   Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
 
   try {
-    OGRLayer *layer = ds->this_->ExecuteSQL(sql.c_str(), NULL, NULL);
+    OGRLayer *layer = ds->this_->ExecuteSQL(sql.c_str(),
+                                            spatial_filter ? spatial_filter->get() : NULL,
+                                            sql_dialect.empty() ? NULL : sql_dialect.c_str());
 
     if (layer)
       return scope.Close(Layer::New(layer));
@@ -193,13 +112,43 @@ Handle<Value> Datasource::executeSQL(const Arguments& args)
 }
 
 
-Handle<Value> Datasource::syncToDisk(const Arguments& args)
+Handle<Value> Datasource::createLayer(const Arguments& args)
 {
   HandleScope scope;
+  std::string layer_name;
+  std::string spatial_ref = "";
+  OGRwkbGeometryType geom_type = wkbUnknown;
+  Handle<Array> layer_options = Array::New(0);
+
+  NODE_ARG_STR(0, "layer name", layer_name);
+  NODE_ARG_OPT_STR(1, "spatial reference", spatial_ref);
+  NODE_ARG_ENUM_OPT(2, "geometry type", OGRwkbGeometryType, geom_type);
+  NODE_ARG_ARRAY_OPT(3, "layer creation options", layer_options);
 
   Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
 
-  return scope.Close(Integer::New(ds->this_->SyncToDisk()));
-}
+  char **options = NULL;
 
+  if (layer_options->Length() > 0) {
+    options = new char* [layer_options->Length()];
+    for (unsigned int i = 0; i < layer_options->Length(); ++i) {
+      options[i] = TOSTR(layer_options->Get(i));
+    }
+  }
+
+  OGRLayer *layer = ds->this_->CreateLayer(layer_name.c_str(),
+                                           NULL,
+                                           geom_type,
+                                           options);
+
+  if (options) {
+    delete [] options;
+  }
+
+  if (layer) {
+    return scope.Close(Layer::New(layer));
+  }
+
+  return Undefined();
+}
 

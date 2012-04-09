@@ -7,7 +7,8 @@ ogr.quiet()
 
 describe 'Layer', ->
   valid_file = './test/support/valid_shapefile.shp'
-  layer =  ogr.open(valid_file).getLayer()
+  ds = ogr.open(valid_file)
+  layer =  ds.getLayer(0)
 
   it "should be an instance of Layer", ->
     layer.should.be.an.instanceof ogr.Layer
@@ -35,6 +36,8 @@ describe 'Layer', ->
 
   it "should not be able to delete a feature on a read-only shapefile layer", ->
     layer.deleteFeature(0).should.not.eql(0)
+
+    (-> layer.deleteFeature("invalid parameter")).should.throw()
 
   it "should be able to retrieve its name", ->
     layer.getName().should.eql("valid_shapefile")

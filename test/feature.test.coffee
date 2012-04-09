@@ -4,7 +4,8 @@ ogr = require 'ogr'
 
 describe 'Feature', ->
   valid_file = './test/support/valid_shapefile.shp'
-  layer =  ogr.open(valid_file).getLayer()
+  ds = ogr.open(valid_file)
+  layer =  ds.getLayer(0)
   feature = layer.getFeature(0)
   feature_other = layer.getFeature(1)
 

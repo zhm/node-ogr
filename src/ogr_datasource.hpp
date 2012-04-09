@@ -19,7 +19,7 @@ class Datasource: public node::ObjectWrap {
     static Persistent<FunctionTemplate> constructor;
     static void Initialize(Handle<Object> target);
     static Handle<Value> New(const Arguments &args);
-    static Handle<Value> New(OGRDataSource *ds); 
+    static Handle<Value> New(OGRDataSource *ds);
     static Handle<Value> toString(const Arguments &args);
     static Handle<Value> getName(const Arguments &args);
     static Handle<Value> getLayerCount(const Arguments &args);
@@ -29,6 +29,9 @@ class Datasource: public node::ObjectWrap {
     static Handle<Value> testCapability(const Arguments &args);
     static Handle<Value> executeSQL(const Arguments &args);
     static Handle<Value> syncToDisk(const Arguments &args);
+    static Handle<Value> createLayer(const Arguments &args);
+    static Handle<Value> copyLayer(const Arguments &args);
+
 
 
     Datasource();

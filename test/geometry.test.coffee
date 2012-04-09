@@ -7,7 +7,8 @@ _   = require 'underscore'
 
 describe 'Geometry', ->
   valid_file = './test/support/valid_shapefile.shp'
-  layer =  ogr.open(valid_file).getLayer()
+  ds = ogr.open(valid_file)
+  layer =  ds.getLayer(0)
   geom = layer.getNextFeature().getGeometry()
   geom_other = layer.getNextFeature().getGeometry()
 

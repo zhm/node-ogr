@@ -7,7 +7,7 @@ _   = require 'underscore'
 
 describe 'FieldDefn', ->
   valid_file = './test/support/valid_shapefile.shp'
-  layer =  ogr.open(valid_file).getLayer()
+  layer =  ogr.open(valid_file).getLayer(0)
   defn  = layer.getLayerDefn().getFieldDefn(0)
 
   it "should be an instance of FieldDefn", ->

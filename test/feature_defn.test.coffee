@@ -3,11 +3,12 @@
 ogr = require 'ogr'
 _   = require 'underscore'
 
-ogr.quiet()
+#ogr.quiet()
 
 describe 'FeatureDefn', ->
   valid_file = './test/support/valid_shapefile.shp'
-  layer =  ogr.open(valid_file).getLayer()
+  ds = ogr.open(valid_file)
+  layer =  ds.getLayer(0)
   defn  = layer.getLayerDefn()
 
   it "should be an instance of FeatureDefn", ->

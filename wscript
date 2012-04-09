@@ -20,6 +20,7 @@ def build(bld):
   obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall", "-Qunused-arguments"]
   obj.target = "ogr"
   obj.source = [
+    "src/ogr_driver.cpp",
     "src/ogr_datasource.cpp",
     "src/ogr_layer.cpp",
     "src/ogr_feature.cpp",

@@ -93,6 +93,15 @@
     } \
   }
 
+#define NODE_ARG_ENUM_OPT(num, name, enum_type, var) \
+  if (args.Length() > num) { \
+    if (args[num]->IsInt32()) { \
+      var = static_cast<enum_type>(args[num]->IntegerValue()); \
+    } else { \
+      return ThrowException(Exception::Error(String::New((std::string(name) + " must be an integer").c_str()))); \
+    } \
+  }
+
 #define NODE_ARG_BOOL_OPT(num, name, var) \
   if (args.Length() > num) { \
     if (args[num]->IsBoolean()) { \
@@ -129,6 +138,16 @@
       return ThrowException(Exception::Error(String::New((std::string(name) + " must be an instance of " + std::string(#name)).c_str()))); \
     } \
     var = ObjectWrap::Unwrap<type>(obj); \
+  }
+
+
+#define NODE_ARG_ARRAY_OPT(num, name, var) \
+  if (args.Length() > num) { \
+    if (args[num]->IsArray()) { \
+      var = Handle<Array>::Cast(args[num]); \
+    } else { \
+      return ThrowException(Exception::Error(String::New((std::string(name) + " must be an array").c_str()))); \
+    } \
   }
 
 

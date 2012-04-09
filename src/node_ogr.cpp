@@ -12,6 +12,7 @@
 // node-gdal
 #include "ogr_common.hpp"
 #include "ogr.hpp"
+#include "ogr_driver.hpp"
 #include "ogr_datasource.hpp"
 #include "ogr_layer.hpp"
 #include "ogr_feature_defn.hpp"
@@ -53,6 +54,7 @@ extern "C" {
     InvalidHandle = 8
   } Error;
 
+
   static void CPL_STDCALL NodeOGRErrorHandler(CPLErr err, int code, const char *message)
   {
   }
@@ -72,7 +74,13 @@ extern "C" {
   static void Init(Handle<Object> target)
   {
     NODE_SET_METHOD(target, "open", node_ogr::open);
+    NODE_SET_METHOD(target, "getDriverByName", node_ogr::getDriverByName);
+    NODE_SET_METHOD(target, "getDriverCount", node_ogr::getDriverCount);
+    NODE_SET_METHOD(target, "getDriver", node_ogr::getDriver);
+    NODE_SET_METHOD(target, "getOpenDSCount", node_ogr::getOpenDSCount);
+    NODE_SET_METHOD(target, "getOpenDS", node_ogr::getOpenDS);
 
+    Driver::Initialize(target);
     Datasource::Initialize(target);
     Layer::Initialize(target);
     Feature::Initialize(target);
@@ -138,6 +146,9 @@ extern "C" {
     NODE_DEFINE_CONSTANT(target, Failure);
     NODE_DEFINE_CONSTANT(target, UnsupportedSRS);
     NODE_DEFINE_CONSTANT(target, InvalidHandle);
+
+    target->Set(String::NewSymbol("CreateDataSourceOption"), String::New(ODrCCreateDataSource));
+    target->Set(String::NewSymbol("DeleteDataSourceOption"), String::New(ODrCDeleteDataSource));
   }
 
 }
