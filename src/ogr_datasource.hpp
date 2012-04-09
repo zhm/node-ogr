@@ -31,6 +31,7 @@ class Datasource: public node::ObjectWrap {
     static Handle<Value> syncToDisk(const Arguments &args);
     static Handle<Value> createLayer(const Arguments &args);
     static Handle<Value> copyLayer(const Arguments &args);
+    static Handle<Value> releaseResultSet(const Arguments &args);
 
 
 

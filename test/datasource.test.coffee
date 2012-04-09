@@ -1,9 +1,11 @@
 #!/usr/bin/env coffee
 
-ogr = require 'ogr'
-_   = require 'underscore'
+fs   = require 'fs'
+path = require 'path'
+ogr  = require 'ogr'
+_    = require 'underscore'
 
-ogr.quiet()
+#ogr.quiet()
 
 describe 'DataSource', ->
   valid_file = './test/support/valid_shapefile.shp'
@@ -31,15 +33,29 @@ describe 'DataSource', ->
     ds.syncToDisk()
 
   it "should be able to execute SQL statements", ->
-    ds.executeSQL("SELECT * FROM valid_shapefile").should.be.an.instanceof ogr.Layer
+    layer = ds.executeSQL("SELECT * FROM valid_shapefile")
+    layer.should.be.an.instanceof ogr.Layer
+    ds.releaseResultSet(layer)
 
-#     static Handle<Value> getName(const Arguments &args);
-    #static Handle<Value> getLayerCount(const Arguments &args);
-    #static Handle<Value> getLayerByName(const Arguments &args);
-    #static Handle<Value> getLayer(const Arguments &args);
-    #static Handle<Value> deleteLayer(const Arguments &args);
-    #static Handle<Value> testCapability(const Arguments &args);
-    #static Handle<Value> executeSQL(const Arguments &args);
-    #static Handle<Value> syncToDisk(const Arguments &args);
-    #static Handle<Value> createLayer(const Arguments &args);
-    #static Handle<Value> copyLayer(const Arguments &args);
+  it "should be able test capabilities", ->
+    ds.testCapability("ODsCCreateLayer").should.be.false
+    ds.testCapability("ODsCDeleteLayer:").should.be.false
+
+  it "should be able to copy a layer", ->
+    layer = ds.getLayer(0)
+    layer.should.be.an.instanceof ogr.Layer
+
+    if path.existsSync("./test/support/test_output.json")
+      fs.unlinkSync("./test/support/test_output.json")
+
+    json_driver = ogr.getDriverByName('GeoJSON')
+    json_ds = json_driver.createDataSource('./test/support/test_output.json')
+    json_ds.should.be.an.instanceof ogr.Datasource
+    json_layer = json_ds.copyLayer(layer, "json_layer")
+    json_layer.should.be.an.instanceof ogr.Layer
+
+    fs.unlinkSync("./test/support/test_output.json")
+
+  it "should be able to create a new layer", ->
+    #layer = ds.createLayer("test_layer")
+    #layer.should.be.an.instanceof ogr.Layer

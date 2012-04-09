@@ -27,6 +27,8 @@ void Datasource::Initialize(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor, "executeSQL", executeSQL);
     NODE_SET_PROTOTYPE_METHOD(constructor, "syncToDisk", syncToDisk);
     NODE_SET_PROTOTYPE_METHOD(constructor, "createLayer", createLayer);
+    NODE_SET_PROTOTYPE_METHOD(constructor, "copyLayer", copyLayer);
+    NODE_SET_PROTOTYPE_METHOD(constructor, "releaseResultSet", releaseResultSet);
 
     target->Set(String::NewSymbol("Datasource"), constructor->GetFunction());
 }
@@ -80,8 +82,9 @@ NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Datasource, getLayerByName, Layer
 NODE_WRAPPED_METHOD_WITH_RESULT(Datasource, getLayerCount, Integer, GetLayerCount);
 NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Datasource, getLayer, Layer, GetLayer, "layer index to fetch");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Datasource, deleteLayer, Integer, DeleteLayer, "layer index to delete");
-NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Datasource, testCapability, Integer, TestCapability, "capability to test");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Datasource, testCapability, Boolean, TestCapability, "capability to test");
 NODE_WRAPPED_METHOD_WITH_RESULT(Datasource, syncToDisk, Integer, SyncToDisk);
+NODE_WRAPPED_METHOD_WITH_1_WRAPPED_PARAM(Datasource, releaseResultSet, ReleaseResultSet, Layer, "layer to release");
 
 Handle<Value> Datasource::executeSQL(const Arguments& args)
 {
@@ -140,6 +143,47 @@ Handle<Value> Datasource::createLayer(const Arguments& args)
                                            NULL,
                                            geom_type,
                                            options);
+
+  if (options) {
+    delete [] options;
+  }
+
+  if (layer) {
+    return scope.Close(Layer::New(layer));
+  }
+
+  return Undefined();
+}
+
+
+
+
+
+Handle<Value> Datasource::copyLayer(const Arguments& args)
+{
+  HandleScope scope;
+  Layer *layer_to_copy;
+  std::string new_name = "";
+  Handle<Array> layer_options = Array::New(0);
+
+  NODE_ARG_WRAPPED(0, "layer to copy", Layer, layer_to_copy);
+  NODE_ARG_STR(1, "new layer name", new_name);
+  NODE_ARG_ARRAY_OPT(2, "layer creation options", layer_options);
+
+  Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
+
+  char **options = NULL;
+
+  if (layer_options->Length() > 0) {
+    options = new char* [layer_options->Length()];
+    for (unsigned int i = 0; i < layer_options->Length(); ++i) {
+      options[i] = TOSTR(layer_options->Get(i));
+    }
+  }
+
+  OGRLayer *layer = ds->this_->CopyLayer(layer_to_copy->get(),
+                                         new_name.c_str(),
+                                         options);
 
   if (options) {
     delete [] options;

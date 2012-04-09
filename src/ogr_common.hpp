@@ -203,6 +203,15 @@ Handle<Value> klass::method(const Arguments& args)                   \
   return Undefined();                                                \
 }
 
+#define NODE_WRAPPED_METHOD_WITH_1_WRAPPED_PARAM(klass, method, wrapped_method, param_type, param_name)   \
+Handle<Value> klass::method(const Arguments& args)                                                                            \
+{                                                                                                                             \
+  HandleScope scope; \
+  param_type *param; \
+  NODE_ARG_WRAPPED(0, #param_name, param_type, param); \
+  ObjectWrap::Unwrap<klass>(args.This())->this_->wrapped_method(param->get());  \
+  return Undefined(); \
+}
 
 #define NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(klass, method, wrapped_method, param_name) \
 Handle<Value> klass::method(const Arguments& args)                                          \
