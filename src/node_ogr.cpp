@@ -137,6 +137,19 @@ extern "C" {
     NODE_DEFINE_CONSTANT(target, wkbMultiPolygon25D);
     NODE_DEFINE_CONSTANT(target, wkbGeometryCollection25D);
 
+    NODE_DEFINE_CONSTANT(target, OFTInteger);
+    NODE_DEFINE_CONSTANT(target, OFTIntegerList);
+    NODE_DEFINE_CONSTANT(target, OFTReal);
+    NODE_DEFINE_CONSTANT(target, OFTRealList);
+    NODE_DEFINE_CONSTANT(target, OFTString);
+    NODE_DEFINE_CONSTANT(target, OFTStringList);
+    NODE_DEFINE_CONSTANT(target, OFTWideString);
+    NODE_DEFINE_CONSTANT(target, OFTWideStringList);
+    NODE_DEFINE_CONSTANT(target, OFTBinary);
+    NODE_DEFINE_CONSTANT(target, OFTDate);
+    NODE_DEFINE_CONSTANT(target, OFTTime);
+    NODE_DEFINE_CONSTANT(target, OFTDateTime);
+
     NODE_DEFINE_CONSTANT(target, Success);
     NODE_DEFINE_CONSTANT(target, NotEnoughData);
     NODE_DEFINE_CONSTANT(target, NotEnoughMemory);

@@ -152,6 +152,7 @@ describe 'Geometry', ->
 
   it "should be able to calculate the centroid", ->
     geom.centroid().should.be.an.instanceof(ogr.Geometry)
+    geom.centroid().exportToWKT().should.eql('POINT (-93.822760566629469 29.644603855661842)')
 
   it "should be able to be segmentized", ->
     geom.segmentize(9.0)

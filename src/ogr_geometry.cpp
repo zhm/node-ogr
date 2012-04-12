@@ -30,6 +30,7 @@ void Geometry::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor, "exportToKML", exportToKML);
   NODE_SET_PROTOTYPE_METHOD(constructor, "exportToGML", exportToGML);
   NODE_SET_PROTOTYPE_METHOD(constructor, "exportToJSON", exportToJSON);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "exportToWKT", exportToWKT);
   NODE_SET_PROTOTYPE_METHOD(constructor, "closeRings", closeRings);
   NODE_SET_PROTOTYPE_METHOD(constructor, "intersects", intersects);
   NODE_SET_PROTOTYPE_METHOD(constructor, "equals", equals);
@@ -177,6 +178,25 @@ Handle<Value> Geometry::buffer(const Arguments& args)
   Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
 
   return scope.Close(Geometry::New(geom->this_->Buffer(distance, number_of_segments)));
+}
+
+
+
+//manually wrap this method because we don't have macros for multiple params
+Handle<Value> Geometry::exportToWKT(const Arguments& args)
+{
+  HandleScope scope;
+
+  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
+
+  char *text = NULL;
+  geom->this_->exportToWkt(&text);
+
+  if (text) {
+    return scope.Close(String::New(text));
+  }
+
+  return Undefined();
 }
 
 

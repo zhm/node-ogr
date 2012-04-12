@@ -38,6 +38,7 @@ class Geometry: public node::ObjectWrap {
     static Handle<Value> exportToKML(const Arguments &args);
     static Handle<Value> exportToGML(const Arguments &args);
     static Handle<Value> exportToJSON(const Arguments &args);
+    static Handle<Value> exportToWKT(const Arguments &args);
     static Handle<Value> closeRings(const Arguments &args);
     static Handle<Value> segmentize(const Arguments &args);
     static Handle<Value> intersects(const Arguments &args);

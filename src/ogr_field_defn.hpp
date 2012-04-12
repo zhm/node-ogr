@@ -33,7 +33,6 @@ class FieldDefn: public node::ObjectWrap {
     static Handle<Value> getPrecision(const Arguments &args);
     static Handle<Value> setPrecision(const Arguments &args);
     static Handle<Value> set(const Arguments &args);
-    static Handle<Value> setDefault(const Arguments &args);
     static Handle<Value> isIgnored(const Arguments &args);
     static Handle<Value> setIgnored(const Arguments &args);
 

@@ -24,7 +24,7 @@
     return ThrowException(Exception::Error(String::New((std::string(name) + " must be given").c_str()))); \
   } \
 \
-  if (!args[num]->IsNumber()) { \
+  if (!args[num]->IsInt32()) { \
     return ThrowException(Exception::Error(String::New((std::string(name) + " must be of type " + std::string(#enum_type)).c_str()))); \
   } \
   var = enum_type(args[num]->IntegerValue());
@@ -59,6 +59,16 @@
     return ThrowException(Exception::Error(String::New((std::string(name) + " must be an array").c_str()))); \
   } \
   var = Handle<Array>::Cast(args[num]);
+
+#define NODE_ARG_OBJECT(num, name, var) \
+  if (args.Length() < num + 1) { \
+    return ThrowException(Exception::Error(String::New((std::string(name) + " must be given").c_str()))); \
+  } \
+\
+  if (!args[num]->IsObject()) { \
+    return ThrowException(Exception::Error(String::New((std::string(name) + " must be an object").c_str()))); \
+  } \
+  var = Handle<Object>::Cast(args[num]);
 
 
 #define NODE_ARG_WRAPPED(num, name, type, var) \

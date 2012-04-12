@@ -58,3 +58,16 @@ describe 'FeatureDefn', ->
     defn.isStyleIgnored().should.be.false
 
     (-> defn.setStyleIgnored("an invalid parameter")).should.throw()
+
+  it "should be able to reorder the fields", ->
+    defn.reorderFieldDefns([0, 2, 1])
+
+    (-> defn.reorderFieldDefns("a string parameter")).should.throw()
+    (-> defn.reorderFieldDefns({})).should.throw()
+
+
+  it "should be able to add a new field", ->
+    new_field = new ogr.FieldDefn("new_field_test", ogr.OFTString)
+    defn.addFieldDefn(new_field)
+    new_field = null
+

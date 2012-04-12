@@ -21,8 +21,10 @@ void FeatureDefn::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor, "toString", toString);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldCount", getFieldCount);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldDefn", getFieldDefn);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "addFieldDefn", addFieldDefn);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getFieldIndex", getFieldIndex);
   NODE_SET_PROTOTYPE_METHOD(constructor, "deleteFieldDefn", deleteFieldDefn);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "reorderFieldDefns", reorderFieldDefns);
   NODE_SET_PROTOTYPE_METHOD(constructor, "getGeomType", getGeomType);
   NODE_SET_PROTOTYPE_METHOD(constructor, "setGeomType", setGeomType);
   NODE_SET_PROTOTYPE_METHOD(constructor, "clone", clone);
@@ -113,6 +115,32 @@ NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, isStyleIgnored, Boolean, IsStyleIgn
 NODE_WRAPPED_METHOD_WITH_1_BOOLEAN_PARAM(FeatureDefn, setGeometryIgnored, SetGeometryIgnored, "ignore");
 NODE_WRAPPED_METHOD_WITH_1_BOOLEAN_PARAM(FeatureDefn, setStyleIgnored, SetStyleIgnored, "ignore");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(FeatureDefn, getFieldDefn, FieldDefn, GetFieldDefn, "feature index");
+NODE_WRAPPED_METHOD_WITH_1_WRAPPED_PARAM(FeatureDefn, addFieldDefn, AddFieldDefn, FieldDefn, "feature definition");
+
+
+Handle<Value> FeatureDefn::reorderFieldDefns(const Arguments& args)
+{
+  HandleScope scope;
+  Handle<Array> field_map = Array::New(0);
+
+  NODE_ARG_ARRAY(0, "field map", field_map);
+
+  int *field_map_array = NULL;
+
+  if (field_map->Length() > 0) {
+    field_map_array = new int[field_map->Length()];
+  }
+
+  FeatureDefn *defn = ObjectWrap::Unwrap<FeatureDefn>(args.This());
+
+  if (field_map_array) {
+    defn->this_->ReorderFieldDefns(field_map_array);
+
+    delete [] field_map_array;
+  }
+
+  return Undefined();
+}
 
 /*NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(FeatureDefn, setGeometry, Integer, SetGeometry, Geometry, "geometry");*/
 //NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(FeatureDefn, setGeometryDirectly, Integer, SetGeometryDirectly, Geometry, "geometry");

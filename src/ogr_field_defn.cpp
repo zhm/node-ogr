@@ -55,14 +55,24 @@ Handle<Value> FieldDefn::New(const Arguments& args)
   HandleScope scope;
 
   if (!args.IsConstructCall())
-      return ThrowException(String::New("Cannot call constructor as function, you need to use 'new' keyword"));
+    return ThrowException(String::New("Cannot call constructor as function, you need to use 'new' keyword"));
 
   if (args[0]->IsExternal()) {
-      Local<External> ext = Local<External>::Cast(args[0]);
-      void* ptr = ext->Value();
-      FieldDefn *f = static_cast<FieldDefn *>(ptr);
-      f->Wrap(args.This());
-      return args.This();
+    Local<External> ext = Local<External>::Cast(args[0]);
+    void* ptr = ext->Value();
+    FieldDefn *f = static_cast<FieldDefn *>(ptr);
+    f->Wrap(args.This());
+    return args.This();
+  } else {
+    std::string field_name("");
+    OGRFieldType field_type(OFTString);
+
+    NODE_ARG_STR(0, "field name", field_name);
+    NODE_ARG_ENUM(1, "field type", OGRFieldType, field_type);
+
+    FieldDefn* def = new FieldDefn(new OGRFieldDefn(field_name.c_str(), field_type));
+    def->owned_ = true;
+    def->Wrap(args.This());
   }
 
   return args.This();
