@@ -3,7 +3,7 @@
 [OGR](http://www.gdal.org/ogr) bindings for [node](http://nodejs.org).
 
 ```js
-var ogr = require('../lib/ogr');
+var ogr = require('ogr');
 
 var driver = ogr.getDriverByName('ESRI Shapefile');
 var layer  = driver.open('../test/support/valid_shapefile.shp').getLayer(0);
