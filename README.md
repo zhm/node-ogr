@@ -26,7 +26,7 @@ As of right now you can only install it locally since it's not on npm yet.
     make configure
     make
 
-Then you can run the tests
+Then you can run the tests (the tests require CoffeeScript to be installed, `npm install -g coffee-script`)
 
     make test
 
