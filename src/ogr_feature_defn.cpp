@@ -105,16 +105,16 @@ Handle<Value> FeatureDefn::toString(const Arguments& args)
 
 NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, getName, String, GetName);
 NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, getFieldCount, Integer, GetFieldCount);
-NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(FeatureDefn, getFieldIndex, Integer, GetFieldIndex, "field name");
-NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(FeatureDefn, deleteFieldDefn, Integer, DeleteFieldDefn, "field index");
 NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, getGeomType, Integer, GetGeomType);
-NODE_WRAPPED_METHOD_WITH_1_ENUM_PARAM(FeatureDefn, setGeomType, SetGeomType, OGRwkbGeometryType, "geometry type");
 NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, clone, FeatureDefn, Clone);
 NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, isGeometryIgnored, Boolean, IsGeometryIgnored);
 NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, isStyleIgnored, Boolean, IsStyleIgnored);
+NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(FeatureDefn, getFieldIndex, Integer, GetFieldIndex, "field name");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(FeatureDefn, deleteFieldDefn, Integer, DeleteFieldDefn, "field index");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(FeatureDefn, getFieldDefn, FieldDefn, GetFieldDefn, "feature index");
+NODE_WRAPPED_METHOD_WITH_1_ENUM_PARAM(FeatureDefn, setGeomType, SetGeomType, OGRwkbGeometryType, "geometry type");
 NODE_WRAPPED_METHOD_WITH_1_BOOLEAN_PARAM(FeatureDefn, setGeometryIgnored, SetGeometryIgnored, "ignore");
 NODE_WRAPPED_METHOD_WITH_1_BOOLEAN_PARAM(FeatureDefn, setStyleIgnored, SetStyleIgnored, "ignore");
-NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(FeatureDefn, getFieldDefn, FieldDefn, GetFieldDefn, "feature index");
 NODE_WRAPPED_METHOD_WITH_1_WRAPPED_PARAM(FeatureDefn, addFieldDefn, AddFieldDefn, FieldDefn, "feature definition");
 
 
@@ -141,20 +141,3 @@ Handle<Value> FeatureDefn::reorderFieldDefns(const Arguments& args)
 
   return Undefined();
 }
-
-/*NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(FeatureDefn, setGeometry, Integer, SetGeometry, Geometry, "geometry");*/
-//NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(FeatureDefn, setGeometryDirectly, Integer, SetGeometryDirectly, Geometry, "geometry");
-//NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, getGeometry, Geometry, GetGeometryRef);
-//NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, stealGeometry, Geometry, StealGeometry);
-//NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, clone, FeatureDefn, Clone);
-//NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(FeatureDefn, equal, Boolean, Equal, FeatureDefn, "feature");
-//NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, getFieldCount, Integer, GetFieldCount);
-//NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(FeatureDefn, getFieldIndex, Integer, GetFieldIndex, "field name");
-//NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(FeatureDefn, isFieldSet, Boolean, IsFieldSet, "field index");
-//NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(FeatureDefn, unsetField, UnsetField, "field index");
-//NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(FeatureDefn, getFieldAsInteger, Integer, GetFieldAsInteger, "field index");
-//NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(FeatureDefn, getFieldAsDouble, Number, GetFieldAsDouble, "field index");
-//NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(FeatureDefn, getFieldAsString, String, GetFieldAsString, "field index");
-//NODE_WRAPPED_METHOD_WITH_RESULT(FeatureDefn, getFID, Integer, GetFID);
-/*NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(FeatureDefn, setFID, SetFID, "feature identifier");*/
-

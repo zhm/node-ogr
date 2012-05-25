@@ -3,13 +3,11 @@
 ogr = require 'ogr'
 _   = require 'underscore'
 
-#ogr.quiet()
-
 describe 'Geometry', ->
   valid_file = './test/support/valid_shapefile.shp'
-  ds = ogr.open(valid_file)
-  layer =  ds.getLayer(0)
-  geom = layer.getNextFeature().getGeometry()
+  datasource = ogr.open(valid_file)
+  layer      = datasource.getLayer(0)
+  geom       = layer.getNextFeature().getGeometry()
   geom_other = layer.getNextFeature().getGeometry()
 
   beforeEach ->
@@ -178,3 +176,6 @@ describe 'Geometry', ->
 
   it "should be able to be polygonized", ->
     (-> geom.polygonize()).should.throw()
+
+  it "should be able to get the area", ->
+    (-> geom.getArea()).should.throw()

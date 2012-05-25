@@ -47,8 +47,3 @@ class FieldDefn: public node::ObjectWrap {
 };
 
 #endif
-
-
-
-
-

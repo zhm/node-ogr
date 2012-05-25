@@ -63,6 +63,7 @@ class Geometry: public node::ObjectWrap {
     static Handle<Value> simplifyPreserveTopology(const Arguments &args);
     static Handle<Value> polygonize(const Arguments &args);
     static Handle<Value> swapXY(const Arguments &args);
+    static Handle<Value> getArea(const Arguments &args);
 
     Geometry();
     Geometry(OGRGeometry *geom);
@@ -76,5 +77,3 @@ class Geometry: public node::ObjectWrap {
 };
 
 #endif
-
-

@@ -59,6 +59,3 @@ class Feature: public node::ObjectWrap {
 };
 
 #endif
-
-
-

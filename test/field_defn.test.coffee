@@ -3,8 +3,6 @@
 ogr = require 'ogr'
 _   = require 'underscore'
 
-#ogr.quiet()
-
 describe 'FieldDefn', ->
   valid_file = './test/support/valid_shapefile.shp'
   layer =  ogr.open(valid_file).getLayer(0)

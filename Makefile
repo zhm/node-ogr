@@ -2,7 +2,7 @@ NODE_PATH := $(shell pwd)/lib
 REPORTER  ?= list
 TESTS     ?= test/*.coffee
 
-all: build install test
+all: build install
 
 install:
 	@node-waf install

@@ -37,7 +37,7 @@ using namespace v8;
 static std::string format_version(int version)
 {
     std::ostringstream s;
-    s << version/100000 << "." << version/100 % 1000  << "." << version % 100;
+    s << version/100000 << "." << version/100 % 1000 << "." << version % 100;
     return s.str();
 }
 
@@ -53,11 +53,6 @@ extern "C" {
     UnsupportedSRS = 7,
     InvalidHandle = 8
   } Error;
-
-
-  static void CPL_STDCALL NodeOGRErrorHandler(CPLErr err, int code, const char *message)
-  {
-  }
 
   static Handle<Value> QuietOutput(const Arguments &args)
   {
@@ -88,13 +83,12 @@ extern "C" {
     FieldDefn::Initialize(target);
     Geometry::Initialize(target);
 
-    //CPLSetErrorHandler(NodeOGRErrorHandler);
-
     Local<Object> versions = Object::New();
     versions->Set(String::NewSymbol("node"), String::New(NODE_VERSION+1));
     versions->Set(String::NewSymbol("v8"), String::New(V8::GetVersion()));
     versions->Set(String::NewSymbol("boost"), String::New(format_version(BOOST_VERSION).c_str()));
     versions->Set(String::NewSymbol("boost_number"), Integer::New(BOOST_VERSION));
+
     target->Set(String::NewSymbol("versions"), versions);
 
     NODE_SET_METHOD(target, "quiet", QuietOutput);

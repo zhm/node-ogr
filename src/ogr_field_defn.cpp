@@ -105,15 +105,15 @@ Handle<Value> FieldDefn::toString(const Arguments& args)
   return scope.Close(String::New("FieldDefn"));
 }
 
-NODE_WRAPPED_METHOD_WITH_1_STRING_PARAM(FieldDefn, setName, SetName, "field name");
 NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getName, String, GetNameRef);
 NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getType, Integer, GetType);
-NODE_WRAPPED_METHOD_WITH_1_ENUM_PARAM(FieldDefn, setType, SetType, OGRFieldType, "field type");
-NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getJustify, Integer, GetJustify);
-NODE_WRAPPED_METHOD_WITH_1_ENUM_PARAM(FieldDefn, setJustify, SetJustify, OGRJustification, "justification");
-NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getWidth, Integer, GetWidth);
-NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(FieldDefn, setWidth, SetWidth, "field width");
-NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getPrecision, Integer, GetPrecision);
-NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(FieldDefn, setPrecision, SetPrecision, "field precision");
 NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, isIgnored, Boolean, IsIgnored);
+NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getJustify, Integer, GetJustify);
+NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getWidth, Integer, GetWidth);
+NODE_WRAPPED_METHOD_WITH_RESULT(FieldDefn, getPrecision, Integer, GetPrecision);
+NODE_WRAPPED_METHOD_WITH_1_ENUM_PARAM(FieldDefn, setJustify, SetJustify, OGRJustification, "justification");
+NODE_WRAPPED_METHOD_WITH_1_ENUM_PARAM(FieldDefn, setType, SetType, OGRFieldType, "field type");
+NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(FieldDefn, setPrecision, SetPrecision, "field precision");
+NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(FieldDefn, setWidth, SetWidth, "field width");
 NODE_WRAPPED_METHOD_WITH_1_BOOLEAN_PARAM(FieldDefn, setIgnored, SetIgnored, "is ignored");
+NODE_WRAPPED_METHOD_WITH_1_STRING_PARAM(FieldDefn, setName, SetName, "field name");

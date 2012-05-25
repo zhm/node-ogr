@@ -33,8 +33,6 @@ class Datasource: public node::ObjectWrap {
     static Handle<Value> copyLayer(const Arguments &args);
     static Handle<Value> releaseResultSet(const Arguments &args);
 
-
-
     Datasource();
     Datasource(OGRDataSource *ds);
     inline OGRDataSource *get() { return this_; }

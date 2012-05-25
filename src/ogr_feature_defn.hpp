@@ -48,7 +48,3 @@ class FeatureDefn: public node::ObjectWrap {
 };
 
 #endif
-
-
-
-

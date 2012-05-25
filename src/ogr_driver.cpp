@@ -11,21 +11,21 @@
 Persistent<FunctionTemplate> Driver::constructor;
 
 void Driver::Initialize(Handle<Object> target) {
-    HandleScope scope;
+  HandleScope scope;
 
-    constructor = Persistent<FunctionTemplate>::New(FunctionTemplate::New(Driver::New));
-    constructor->InstanceTemplate()->SetInternalFieldCount(1);
-    constructor->SetClassName(String::NewSymbol("Driver"));
+  constructor = Persistent<FunctionTemplate>::New(FunctionTemplate::New(Driver::New));
+  constructor->InstanceTemplate()->SetInternalFieldCount(1);
+  constructor->SetClassName(String::NewSymbol("Driver"));
 
-    NODE_SET_PROTOTYPE_METHOD(constructor, "toString", toString);
-    NODE_SET_PROTOTYPE_METHOD(constructor, "getName", getName);
-    NODE_SET_PROTOTYPE_METHOD(constructor, "open", open);
-    NODE_SET_PROTOTYPE_METHOD(constructor, "testCapability", testCapability);
-    NODE_SET_PROTOTYPE_METHOD(constructor, "createDataSource", createDataSource);
-    NODE_SET_PROTOTYPE_METHOD(constructor, "deleteDataSource", deleteDataSource);
-    NODE_SET_PROTOTYPE_METHOD(constructor, "copyDataSource", copyDataSource);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "toString", toString);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getName", getName);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "open", open);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "testCapability", testCapability);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "createDataSource", createDataSource);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "deleteDataSource", deleteDataSource);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "copyDataSource", copyDataSource);
 
-    target->Set(String::NewSymbol("Driver"), constructor->GetFunction());
+  target->Set(String::NewSymbol("Driver"), constructor->GetFunction());
 }
 
 Driver::Driver(OGRSFDriver *driver)
@@ -48,14 +48,14 @@ Handle<Value> Driver::New(const Arguments& args)
   HandleScope scope;
 
   if (!args.IsConstructCall())
-      return ThrowException(String::New("Cannot call constructor as function, you need to use 'new' keyword"));
+    return ThrowException(String::New("Cannot call constructor as function, you need to use 'new' keyword"));
 
   if (args[0]->IsExternal()) {
-      Local<External> ext = Local<External>::Cast(args[0]);
-      void* ptr = ext->Value();
-      Driver *f =  static_cast<Driver *>(ptr);
-      f->Wrap(args.This());
-      return args.This();
+    Local<External> ext = Local<External>::Cast(args[0]);
+    void *ptr = ext->Value();
+    Driver *f =  static_cast<Driver *>(ptr);
+    f->Wrap(args.This());
+    return args.This();
   }
 
   return args.This();

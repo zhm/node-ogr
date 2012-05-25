@@ -7,8 +7,8 @@ ogr.quiet()
 
 describe 'Layer', ->
   valid_file = './test/support/valid_shapefile.shp'
-  ds = ogr.open(valid_file)
-  layer =  ds.getLayer(0)
+  datasource = ogr.open(valid_file)
+  layer      = datasource.getLayer(0)
 
   it "should be an instance of Layer", ->
     layer.should.be.an.instanceof ogr.Layer
@@ -47,26 +47,25 @@ describe 'Layer', ->
 
   it "should be able test the layer capabilities of a shapefile", ->
     capabilities = {
-      'RandomRead': true
-      'SequentialWrite': false
-      'RandomWrite': false
-      'FastSpatialFilter': false
-      'FastFeatureCount': true
-      'FastGetExtent': true
+      'RandomRead'        : true
+      'SequentialWrite'   : false
+      'RandomWrite'       : false
+      'FastSpatialFilter' : false
+      'FastFeatureCount'  : true
+      'FastGetExtent'     : true
       'FastSetNextByIndex': true
-      'CreateField': false
-      'DeleteField': false
-      'ReorderFields': false
-      'AlterFieldDefn': false
-      'DeleteFeature': false
-      'StringsAsUTF8': true
-      'Transactions': false
-      'IgnoreFields': true
+      'CreateField'       : false
+      'DeleteField'       : false
+      'ReorderFields'     : false
+      'AlterFieldDefn'    : false
+      'DeleteFeature'     : false
+      'StringsAsUTF8'     : true
+      'Transactions'      : false
+      'IgnoreFields'      : true
     }
 
     _.each capabilities, (supported, capability) ->
       layer.testCapability(capability).should.be[supported]
-
 
   it "should be able sync to disk", ->
     layer.syncToDisk()

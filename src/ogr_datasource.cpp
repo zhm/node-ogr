@@ -78,12 +78,12 @@ Handle<Value> Datasource::toString(const Arguments& args)
 }
 
 NODE_WRAPPED_METHOD_WITH_RESULT(Datasource, getName, String, GetName);
-NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Datasource, getLayerByName, Layer, GetLayerByName, "layer name");
 NODE_WRAPPED_METHOD_WITH_RESULT(Datasource, getLayerCount, Integer, GetLayerCount);
+NODE_WRAPPED_METHOD_WITH_RESULT(Datasource, syncToDisk, Integer, SyncToDisk);
+NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Datasource, getLayerByName, Layer, GetLayerByName, "layer name");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Datasource, getLayer, Layer, GetLayer, "layer index to fetch");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Datasource, deleteLayer, Integer, DeleteLayer, "layer index to delete");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Datasource, testCapability, Boolean, TestCapability, "capability to test");
-NODE_WRAPPED_METHOD_WITH_RESULT(Datasource, syncToDisk, Integer, SyncToDisk);
 NODE_WRAPPED_METHOD_WITH_1_WRAPPED_PARAM(Datasource, releaseResultSet, ReleaseResultSet, Layer, "layer to release");
 
 Handle<Value> Datasource::executeSQL(const Arguments& args)
@@ -157,8 +157,6 @@ Handle<Value> Datasource::createLayer(const Arguments& args)
 
 
 
-
-
 Handle<Value> Datasource::copyLayer(const Arguments& args)
 {
   HandleScope scope;
@@ -195,4 +193,3 @@ Handle<Value> Datasource::copyLayer(const Arguments& args)
 
   return Undefined();
 }
-

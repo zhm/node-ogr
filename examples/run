@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+NODE_PATH=../lib node postgis.js

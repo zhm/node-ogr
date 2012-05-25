@@ -38,4 +38,3 @@ class Driver: public node::ObjectWrap {
 };
 
 #endif
-

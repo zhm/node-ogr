@@ -132,22 +132,19 @@ Handle<Value> Feature::getFieldDefn(const Arguments& args)
   return HandleScope().Close(FieldDefn::New(ObjectWrap::Unwrap<Feature>(args.This())->this_->GetFieldDefnRef(field_index), false));
 }
 
-NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, setGeometry, Integer, SetGeometry, Geometry, "geometry");
-//NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, setGeometryDirectly, Integer, SetGeometryDirectly, Geometry, "geometry");
-//NODE_WRAPPED_METHOD_WITH_RESULT(Feature, getGeometry, Geometry, GetGeometryRef);
 NODE_WRAPPED_METHOD_WITH_RESULT(Feature, stealGeometry, Geometry, StealGeometry);
 NODE_WRAPPED_METHOD_WITH_RESULT(Feature, clone, Feature, Clone);
-NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, equal, Boolean, Equal, Feature, "feature");
 NODE_WRAPPED_METHOD_WITH_RESULT(Feature, getFieldCount, Integer, GetFieldCount);
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, setGeometry, Integer, SetGeometry, Geometry, "geometry");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Feature, equal, Boolean, Equal, Feature, "feature");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Feature, getFieldIndex, Integer, GetFieldIndex, "field name");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Feature, isFieldSet, Boolean, IsFieldSet, "field index");
-NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(Feature, unsetField, UnsetField, "field index");
-//NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Feature, getRawField, Field, GetRawFieldRef, "field index");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Feature, getFieldAsInteger, Integer, GetFieldAsInteger, "field index");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Feature, getFieldAsDouble, Number, GetFieldAsDouble, "field index");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Feature, getFieldAsString, String, GetFieldAsString, "field index");
 NODE_WRAPPED_METHOD_WITH_RESULT(Feature, getFID, Integer, GetFID);
 NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(Feature, setFID, SetFID, "feature identifier");
+NODE_WRAPPED_METHOD_WITH_1_INTEGER_PARAM(Feature, unsetField, UnsetField, "field index");
 
 
 Handle<Value> Feature::setField(const Arguments& args)
@@ -216,7 +213,8 @@ Handle<Value> Feature::setFrom(const Arguments& args)
     Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
 
     return scope.Close(Integer::New(feature->this_->SetFrom(other_feature->this_, forgiving ? TRUE : FALSE)));
-  } else if (args.Length() > 2) {
+  }
+  else if (args.Length() > 2) {
     NODE_ARG_ARRAY(1, "index map", index_map);
     NODE_ARG_BOOL_OPT(2, "forgiving", forgiving);
 
@@ -239,7 +237,9 @@ Handle<Value> Feature::setFrom(const Arguments& args)
 
     Feature *feature = ObjectWrap::Unwrap<Feature>(args.This());
 
-    OGRErr err = feature->this_->SetFrom(other_feature->this_, index_map_ptr, forgiving ? TRUE : FALSE);
+    OGRErr err = feature->this_->SetFrom(other_feature->this_,
+                                         index_map_ptr,
+                                         forgiving ? TRUE : FALSE);
 
     delete [] index_map_ptr;
 

@@ -86,4 +86,3 @@ namespace node_ogr {
 }
 
 #endif
-

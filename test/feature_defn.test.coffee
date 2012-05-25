@@ -3,12 +3,10 @@
 ogr = require 'ogr'
 _   = require 'underscore'
 
-#ogr.quiet()
-
 describe 'FeatureDefn', ->
   valid_file = './test/support/valid_shapefile.shp'
-  ds = ogr.open(valid_file)
-  layer =  ds.getLayer(0)
+  datasource = ogr.open(valid_file)
+  layer = datasource.getLayer(0)
   defn  = layer.getLayerDefn()
 
   it "should be an instance of FeatureDefn", ->
@@ -65,9 +63,7 @@ describe 'FeatureDefn', ->
     (-> defn.reorderFieldDefns("a string parameter")).should.throw()
     (-> defn.reorderFieldDefns({})).should.throw()
 
-
   it "should be able to add a new field", ->
     new_field = new ogr.FieldDefn("new_field_test", ogr.OFTString)
     defn.addFieldDefn(new_field)
     new_field = null
-

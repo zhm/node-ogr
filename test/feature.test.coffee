@@ -68,7 +68,6 @@ describe 'Feature', ->
     feature.setField(field_index, a_new_value)
     feature.getFieldAsString(field_index).should.eql(a_new_value)
 
-
     field_index = feature.getFieldIndex("district")
     a_new_value = 9
 

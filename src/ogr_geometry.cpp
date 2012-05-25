@@ -55,6 +55,7 @@ void Geometry::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor, "polygonize", polygonize);
   NODE_SET_PROTOTYPE_METHOD(constructor, "segmentize", segmentize);
   NODE_SET_PROTOTYPE_METHOD(constructor, "swapXY", swapXY);
+  NODE_SET_PROTOTYPE_METHOD(constructor, "getArea", getArea);
 
   target->Set(String::NewSymbol("Geometry"), constructor->GetFunction());
 }
@@ -87,14 +88,14 @@ Handle<Value> Geometry::New(const Arguments& args)
   HandleScope scope;
 
   if (!args.IsConstructCall())
-      return ThrowException(String::New("Cannot call constructor as function, you need to use 'new' keyword"));
+    return ThrowException(String::New("Cannot call constructor as function, you need to use 'new' keyword"));
 
   if (args[0]->IsExternal()) {
-      Local<External> ext = Local<External>::Cast(args[0]);
-      void* ptr = ext->Value();
-      Geometry *f = static_cast<Geometry *>(ptr);
-      f->Wrap(args.This());
-      return args.This();
+    Local<External> ext = Local<External>::Cast(args[0]);
+    void* ptr = ext->Value();
+    Geometry *f = static_cast<Geometry *>(ptr);
+    f->Wrap(args.This());
+    return args.This();
   }
 
   return args.This();
@@ -129,6 +130,9 @@ Handle<Value> Geometry::toString(const Arguments& args)
 }
 
 
+NODE_WRAPPED_METHOD(Geometry, closeRings, closeRings);
+NODE_WRAPPED_METHOD(Geometry, empty, empty);
+NODE_WRAPPED_METHOD(Geometry, swapXY, swapXY);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, getDimension, Integer, getDimension);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, getCoordinateDimension, Integer, getCoordinateDimension);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, isEmpty, Boolean, IsEmpty);
@@ -136,15 +140,14 @@ NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, isValid, Boolean, IsValid);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, isSimple, Boolean, IsSimple);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, isRing, Boolean, IsRing);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, clone, Geometry, clone);
-NODE_WRAPPED_METHOD(Geometry, empty, empty);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, wkbSize, Integer, WkbSize);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, getGeometryType, Integer, getGeometryType);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, getGeometryName, String, getGeometryName);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, exportToKML, String, exportToKML);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, exportToGML, String, exportToGML);
 NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, exportToJSON, String, exportToJson);
-NODE_WRAPPED_METHOD(Geometry, closeRings, closeRings);
-NODE_WRAPPED_METHOD_WITH_1_DOUBLE_PARAM(Geometry, segmentize, segmentize, "segment length");
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, convexHull, Geometry, ConvexHull);
+NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, boundary, Geometry, Boundary);
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, intersects, Boolean, Intersects, Geometry, "geometry to compare");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, equals, Boolean, Equals, Geometry, "geometry to compare");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, disjoint, Boolean, Disjoint, Geometry, "geometry to compare");
@@ -153,16 +156,14 @@ NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, crosses, Boolean, Cros
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, within, Boolean, Within, Geometry, "geometry to compare");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, contains, Boolean, Contains, Geometry, "geometry to compare");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, overlaps, Boolean, Overlaps, Geometry, "geometry to compare");
-NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, boundary, Geometry, Boundary);
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, distance, Number, Distance, Geometry, "geometry to use for distance calculation");
-NODE_WRAPPED_METHOD_WITH_RESULT(Geometry, convexHull, Geometry, ConvexHull);
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, intersection, Geometry, Intersection, Geometry, "geometry to use for intersection");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, unionGeometry, Geometry, Union, Geometry, "geometry to use for union");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, difference, Geometry, Difference, Geometry, "geometry to use for difference");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Geometry, symDifference, Geometry, SymDifference, Geometry, "geometry to use for sym difference");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_DOUBLE_PARAM(Geometry, simplify, Geometry, Simplify, "tolerance");
 NODE_WRAPPED_METHOD_WITH_RESULT_1_DOUBLE_PARAM(Geometry, simplifyPreserveTopology, Geometry, SimplifyPreserveTopology, "tolerance");
-NODE_WRAPPED_METHOD(Geometry, swapXY, swapXY);
+NODE_WRAPPED_METHOD_WITH_1_DOUBLE_PARAM(Geometry, segmentize, segmentize, "segment length");
 
 //manually wrap this method because we don't have macros for multiple params
 Handle<Value> Geometry::buffer(const Arguments& args)
@@ -181,8 +182,6 @@ Handle<Value> Geometry::buffer(const Arguments& args)
 }
 
 
-
-//manually wrap this method because we don't have macros for multiple params
 Handle<Value> Geometry::exportToWKT(const Arguments& args)
 {
   HandleScope scope;
@@ -243,4 +242,38 @@ Handle<Value> Geometry::polygonize(const Arguments& args)
   } else {
     return Null();
   }
+}
+
+
+
+Handle<Value> Geometry::getArea(const Arguments& args)
+{
+  HandleScope scope;
+  Geometry *geom = ObjectWrap::Unwrap<Geometry>(args.This());
+
+  Handle<Value> area = Undefined();
+
+  switch (geom->this_->getGeometryType()) {
+    case wkbPolygon:
+      area = Number::New(((OGRPolygon *)geom->this_)->get_Area());
+      break;
+
+    case wkbMultiPolygon:
+      area = Number::New(((OGRMultiPolygon *)geom->this_)->get_Area());
+      break;
+
+    case wkbLinearRing:
+      area = Number::New(((OGRLinearRing *)geom->this_)->get_Area());
+      break;
+
+    case wkbGeometryCollection:
+      area = Number::New(((OGRGeometryCollection *)geom->this_)->get_Area());
+      break;
+
+    default:
+      area = NODE_THROW("geometry must be either a polygon, multi-polygon, linear ring, or a geometry collection to use the area function.");
+      break;
+  }
+
+  return scope.Close(area);
 }

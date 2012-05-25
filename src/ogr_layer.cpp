@@ -55,14 +55,14 @@ Handle<Value> Layer::New(const Arguments& args)
   HandleScope scope;
 
   if (!args.IsConstructCall())
-      return ThrowException(String::New("Cannot call constructor as function, you need to use 'new' keyword"));
+    return ThrowException(String::New("Cannot call constructor as function, you need to use 'new' keyword"));
 
   if (args[0]->IsExternal()) {
-      Local<External> ext = Local<External>::Cast(args[0]);
-      void* ptr = ext->Value();
-      Layer *f = static_cast<Layer *>(ptr);
-      f->Wrap(args.This());
-      return args.This();
+    Local<External> ext = Local<External>::Cast(args[0]);
+    void* ptr = ext->Value();
+    Layer *f = static_cast<Layer *>(ptr);
+    f->Wrap(args.This());
+    return args.This();
   }
 
   return args.This();
@@ -80,6 +80,22 @@ Handle<Value> Layer::toString(const Arguments& args)
   return scope.Close(String::New(layer->this_->GetName()));
 }
 
+
+NODE_WRAPPED_METHOD(Layer, syncToDisk, SyncToDisk);
+NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getGeomType, Integer, GetGeomType);
+NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getName, String, GetName);
+NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getFIDColumn, String, GetFIDColumn);
+NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getGeometryColumn, String, GetGeometryColumn);
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Layer, setFeature, Integer, SetFeature, Feature, "feature");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Layer, createFeature, Integer, SetFeature, Feature, "feature");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Layer, deleteFeature, Integer, DeleteFeature, "feature");
+NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Layer, testCapability, Boolean, TestCapability, "capability");
+
+Handle<Value> Layer::getLayerDefn(const Arguments& args)
+{
+  return HandleScope().Close(FeatureDefn::New(ObjectWrap::Unwrap<Layer>(args.This())->this_->GetLayerDefn(), false));
+}
+
 Handle<Value> Layer::resetReading(const Arguments& args)
 {
   HandleScope scope;
@@ -91,13 +107,10 @@ Handle<Value> Layer::resetReading(const Arguments& args)
   return Undefined();
 }
 
-
 Handle<Value> Layer::getNextFeature(const Arguments& args)
 {
   HandleScope scope;
   Layer *layer = ObjectWrap::Unwrap<Layer>(args.This());
-
-  //return scope.Close(String::New(layer->this_->GetName()));
 
   OGRFeature *next = layer->this_->GetNextFeature();
 
@@ -139,22 +152,4 @@ Handle<Value> Layer::getFeatureCount(const Arguments& args)
   int count = layer->this_->GetFeatureCount(force);
 
   return scope.Close(Integer::New(count));
-}
-
-NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Layer, setFeature, Integer, SetFeature, Feature, "feature");
-NODE_WRAPPED_METHOD_WITH_RESULT_1_WRAPPED_PARAM(Layer, createFeature, Integer, SetFeature, Feature, "feature");
-NODE_WRAPPED_METHOD_WITH_RESULT_1_INTEGER_PARAM(Layer, deleteFeature, Integer, DeleteFeature, "feature");
-NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getGeomType, Integer, GetGeomType);
-NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getName, String, GetName);
-NODE_WRAPPED_METHOD_WITH_RESULT_1_STRING_PARAM(Layer, testCapability, Boolean, TestCapability, "capability");
-
-NODE_WRAPPED_METHOD(Layer, syncToDisk, SyncToDisk);
-NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getFIDColumn, String, GetFIDColumn);
-NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getGeometryColumn, String, GetGeometryColumn);
-//NODE_WRAPPED_METHOD_WITH_RESULT(Layer, getLayerDefn, FeatureDefn, GetLayerDefn);
-
-
-Handle<Value> Layer::getLayerDefn(const Arguments& args)
-{
-  return HandleScope().Close(FeatureDefn::New(ObjectWrap::Unwrap<Layer>(args.This())->this_->GetLayerDefn(), false));
 }

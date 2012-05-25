@@ -46,4 +46,3 @@ class Layer: public node::ObjectWrap {
 };
 
 #endif
-
