@@ -2,10 +2,6 @@
 #include "ogr_common.hpp"
 #include "ogr_geometry.hpp"
 
-// boost
-#include <boost/scoped_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 Persistent<FunctionTemplate> Geometry::constructor;
 
 void Geometry::Initialize(Handle<Object> target) {

@@ -3,7 +3,6 @@
 #define __OGR_COMMON_H__
 
 #include <v8.h>
-#include <boost/shared_ptr.hpp>
 
 #define TOSTR(obj) (*String::Utf8Value((obj)->ToString()))
 

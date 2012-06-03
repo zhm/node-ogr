@@ -4,10 +4,6 @@
 #include "ogr_geometry.hpp"
 #include "ogr_common.hpp"
 
-// boost
-#include <boost/scoped_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 Persistent<FunctionTemplate> Datasource::constructor;
 
 void Datasource::Initialize(Handle<Object> target) {

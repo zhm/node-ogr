@@ -4,10 +4,6 @@
 #include "ogr_datasource.hpp"
 #include "ogr_common.hpp"
 
-// boost
-#include <boost/scoped_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 Persistent<FunctionTemplate> Driver::constructor;
 
 void Driver::Initialize(Handle<Object> target) {

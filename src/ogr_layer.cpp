@@ -4,10 +4,6 @@
 #include "ogr_feature.hpp"
 #include "ogr_feature_defn.hpp"
 
-// boost
-#include <boost/scoped_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 Persistent<FunctionTemplate> Layer::constructor;
 
 void Layer::Initialize(Handle<Object> target) {

@@ -1,15 +1,15 @@
 #ifndef __NODE_OGR_GEOMETRY_H__
 #define __NODE_OGR_GEOMETRY_H__
 
+// v8
 #include <v8.h>
+
+// node
 #include <node.h>
 #include <node_object_wrap.h>
 
 // ogr
 #include <ogrsf_frmts.h>
-
-// boost
-#include <boost/shared_ptr.hpp>
 
 using namespace v8;
 using namespace node;

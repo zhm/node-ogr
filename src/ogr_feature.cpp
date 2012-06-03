@@ -5,10 +5,6 @@
 #include "ogr_geometry.hpp"
 #include "ogr_field_defn.hpp"
 
-// boost
-#include <boost/scoped_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 // node
 #include <node/node_buffer.h>
 

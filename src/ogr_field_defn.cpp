@@ -2,10 +2,6 @@
 #include "ogr_common.hpp"
 #include "ogr_field_defn.hpp"
 
-// boost
-#include <boost/scoped_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 Persistent<FunctionTemplate> FieldDefn::constructor;
 
 void FieldDefn::Initialize(Handle<Object> target) {

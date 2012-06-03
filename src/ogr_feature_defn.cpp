@@ -3,10 +3,6 @@
 #include "ogr_feature_defn.hpp"
 #include "ogr_field_defn.hpp"
 
-// boost
-#include <boost/scoped_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 Persistent<FunctionTemplate> FeatureDefn::constructor;
 
 void FeatureDefn::Initialize(Handle<Object> target) {

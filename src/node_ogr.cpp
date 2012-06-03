@@ -6,10 +6,10 @@
 #include <node_buffer.h>
 #include <node_version.h>
 
-// gdal
+// ogr
 #include <ogr_api.h>
 
-// node-gdal
+// node-ogr
 #include "ogr_common.hpp"
 #include "ogr.hpp"
 #include "ogr_driver.hpp"
@@ -20,10 +20,6 @@
 #include "ogr_feature.hpp"
 #include "ogr_geometry.hpp"
 
-// boost
-#include <boost/version.hpp>
-#include <boost/foreach.hpp>
-
 // std
 #include <string>
 #include <sstream>
@@ -33,13 +29,6 @@ namespace node_ogr {
 
 using namespace node;
 using namespace v8;
-
-static std::string format_version(int version)
-{
-    std::ostringstream s;
-    s << version/100000 << "." << version/100 % 1000 << "." << version % 100;
-    return s.str();
-}
 
 extern "C" {
   enum {
@@ -86,8 +75,6 @@ extern "C" {
     Local<Object> versions = Object::New();
     versions->Set(String::NewSymbol("node"), String::New(NODE_VERSION+1));
     versions->Set(String::NewSymbol("v8"), String::New(V8::GetVersion()));
-    versions->Set(String::NewSymbol("boost"), String::New(format_version(BOOST_VERSION).c_str()));
-    versions->Set(String::NewSymbol("boost_number"), Integer::New(BOOST_VERSION));
 
     target->Set(String::NewSymbol("versions"), versions);
 
