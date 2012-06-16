@@ -6,16 +6,16 @@
   "main"          : "./lib/ogr.js",
   "keywords"      : ["gis", "geography", "vector", "gdal", "ogr"],
   "repositories" : [
-     {
-         "type" : "git",
-         "url"  : "git://github.com/zhm/node-ogr.git"
-     }
+    {
+      "type" : "git",
+      "url"  : "git://github.com/zhm/node-ogr.git"
+    }
   ],
   "author": {
-      "name"  : "Zac McCormick",
-      "url"   : "http://github.com/zhm",
-      "email" : "zac.mccormick@gmail.com"
-   },
+    "name"  : "Zac McCormick",
+    "url"   : "http://github.com/zhm",
+    "email" : "zac.mccormick@gmail.com"
+  },
   "contributors"  : [],
   "licenses"      : [{"type": "BSD"}],
   "dependencies"  : {
@@ -29,14 +29,12 @@
     "jshint"  : "~0.5.x"
    },
   "directories"  : {
-     "examples" : "examples",
-     "src": "src"
+    "examples" : "examples",
+    "src": "src"
   },
-  "main"          : "./lib",
-  "engines"       : { "node": ">=0.6.0" },
-  "scripts"       : {
-      "install" : "node-waf -v configure build",
-      "pretest" : "npm install --dev",
-      "test"    : "make test"
-   }
+  "engines"   : { "node": ">=0.6.0" },
+  "scripts"   : {
+    "pretest" : "npm install --dev",
+    "test"    : "make test"
+  }
 }
