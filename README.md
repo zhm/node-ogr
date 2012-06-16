@@ -1,6 +1,6 @@
 # node-ogr
 
-[OGR](http://www.gdal.org/ogr) bindings for [node](http://nodejs.org). "!https://secure.travis-ci.org/travis-ci/travis-ci.png?branch=master!":http://travis-ci.org/travis-ci/travis-ci
+[OGR](http://www.gdal.org/ogr) bindings for [node](http://nodejs.org). [![Build Status](https://secure.travis-ci.org/zhm/node-ogr.png)](http://travis-ci.org/zhm/node-ogr)
 
 ```js
 var ogr = require('ogr');
