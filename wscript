@@ -12,7 +12,7 @@ def configure(conf):
   linkflags = popen("gdal-config --libs").readline().strip().split(' ')
   cflags = popen("gdal-config --cflags").readline().strip().split(' ')
   
-  node_include = "-I" + (popen("echo `which node`").readline().replace("node", "") + "/../../include/node").strip()
+  node_include = "-I" + (popen("echo `which node`").readline().replace("node", "") + "/../../include").strip()
 
   cflags.append("-g")
   cflags.append("-D_FILE_OFFSET_BITS=64")
