@@ -2,23 +2,17 @@ NODE_PATH := $(shell pwd)/lib
 REPORTER  ?= list
 TESTS     ?= test/*.coffee
 
-all: build install
-
-install:
-	@node-waf install
+all: build
 
 configure:
-	node-waf configure
+	node-gyp configure
 
 build:
-	node-waf build
+	node-gyp build
 
 clean:
-	@node-waf clean distclean
-	@rm -rf ./projects/makefiles/
-
-uninstall:
-	@node-waf uninstall
+	node-gyp clean
+	rm -rf build
 
 test:
 	mocha \
@@ -38,4 +32,4 @@ test-docs:
 lint:
 	@./node_modules/.bin/jshint lib/*js test/*js
 
-.PHONY: configure clean build install test test-docs
+.PHONY: configure clean build test test-docs
