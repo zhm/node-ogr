@@ -29,7 +29,7 @@
       "libraries": [
         "<!@(gdal-config --libs)"
       ],
-      "include_dirs": [
+      "cflags": [
         "<!@(gdal-config --cflags)"
       ]
     }
