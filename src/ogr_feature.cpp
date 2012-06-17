@@ -6,7 +6,7 @@
 #include "ogr_field_defn.hpp"
 
 // node
-#include <node/node_buffer.h>
+#include <node_buffer.h>
 
 Persistent<FunctionTemplate> Feature::constructor;
 
