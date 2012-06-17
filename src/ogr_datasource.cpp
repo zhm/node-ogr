@@ -95,17 +95,12 @@ Handle<Value> Datasource::executeSQL(const Arguments& args)
 
   Datasource *ds = ObjectWrap::Unwrap<Datasource>(args.This());
 
-  try {
-    OGRLayer *layer = ds->this_->ExecuteSQL(sql.c_str(),
-                                            spatial_filter ? spatial_filter->get() : NULL,
-                                            sql_dialect.empty() ? NULL : sql_dialect.c_str());
+  OGRLayer *layer = ds->this_->ExecuteSQL(sql.c_str(),
+                                          spatial_filter ? spatial_filter->get() : NULL,
+                                          sql_dialect.empty() ? NULL : sql_dialect.c_str());
 
-    if (layer)
-      return scope.Close(Layer::New(layer));
-
-  } catch (...) {
-    return NODE_THROW("Unknown error. Does the layer exist?");
-  }
+  if (layer)
+    return scope.Close(Layer::New(layer));
 
   return Undefined();
 }
