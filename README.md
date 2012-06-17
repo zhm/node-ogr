@@ -30,6 +30,10 @@ Then you can run the tests (the tests require CoffeeScript to be installed, `npm
 
     make test
 
+or
+
+    npm test
+
 ## Examples
 
 There are examples in `/examples` that show some basic usage. One connects to PostGIS and outputs centroids to a csv.
