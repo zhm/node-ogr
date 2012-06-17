@@ -359,7 +359,7 @@ Handle<Value> Feature::getFieldAsDateTime(const Arguments& args)
 
   int year, month, day, hour, minute, second, timezone;
 
-  year = month = day = hour = minute = second = timezone = NULL;
+  year = month = day = hour = minute = second = timezone = 0;
 
   int result = feature->this_->GetFieldAsDateTime(field_index, &year, &month,
       &day, &hour, &minute, &second, &timezone);

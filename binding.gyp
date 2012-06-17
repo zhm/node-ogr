@@ -30,7 +30,6 @@
         "<!@(gdal-config --libs)"
       ],
       "cflags": [
-        "-fexceptions",
         "<!@(gdal-config --cflags)"
       ]
     }

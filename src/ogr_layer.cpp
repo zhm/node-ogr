@@ -139,7 +139,7 @@ Handle<Value> Layer::getFeature(const Arguments& args)
 Handle<Value> Layer::getFeatureCount(const Arguments& args)
 {
   HandleScope scope;
-  bool force;
+  bool force = true;
 
   NODE_ARG_BOOL_OPT(0, "force", force);
 
