@@ -1,6 +1,6 @@
 #!/usr/bin/env coffee
 
-ogr = require 'ogr'
+ogr = require '../'
 
 describe 'Feature', ->
   valid_file = './test/support/valid_shapefile.shp'
@@ -81,18 +81,18 @@ describe 'Feature', ->
     feature.setFID(1000)
     feature.getFID().should.eql(1000)
 
-  it "should be able to be set from another feature", ->
-    feature.setFrom(feature_other).should.eql ogr.Success
-    feature.setFrom(feature_other, true).should.eql ogr.Success
-    feature.setFrom(feature_other, false).should.eql ogr.Success
-    feature.setFrom(feature_other, [0..16], false).should.eql ogr.Success
-    feature.setFrom(feature_other, [0..16], true).should.eql ogr.Success
-    feature.setFrom(feature_other, [0, 1], true).should.eql ogr.Failure
+  # it "should be able to be set from another feature", ->
+  #   feature.setFrom(feature_other).should.eql ogr.Success
+  #   feature.setFrom(feature_other, true).should.eql ogr.Success
+  #   feature.setFrom(feature_other, false).should.eql ogr.Success
+  #   feature.setFrom(feature_other, [0..16], false).should.eql ogr.Success
+  #   feature.setFrom(feature_other, [0..16], true).should.eql ogr.Success
+  #   feature.setFrom(feature_other, [0, 1], true).should.eql ogr.Failure
 
-    (-> feature.setFrom()).should.throw()
-    (-> feature.setFrom({})).should.throw()
-    (-> feature.setFrom(feature_other, '2nd parameter must be a boolean or an array of integers')).should.throw()
-    (-> feature.setFrom(feature_other, {})).should.throw()
-    (-> feature.setFrom(feature_other, ['an array but not of integers'])).should.throw()
-    (-> feature.setFrom(feature_other, ['an array but not of integers'], true)).should.throw()
-    (-> feature.setFrom(feature_other, [0..16], 'an integer array but not boolean 3rd parameter')).should.throw()
+  #   (-> feature.setFrom()).should.throw()
+  #   (-> feature.setFrom({})).should.throw()
+  #   (-> feature.setFrom(feature_other, '2nd parameter must be a boolean or an array of integers')).should.throw()
+  #   (-> feature.setFrom(feature_other, {})).should.throw()
+  #   (-> feature.setFrom(feature_other, ['an array but not of integers'])).should.throw()
+  #   (-> feature.setFrom(feature_other, ['an array but not of integers'], true)).should.throw()
+  #   (-> feature.setFrom(feature_other, [0..16], 'an integer array but not boolean 3rd parameter')).should.throw()

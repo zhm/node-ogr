@@ -1,6 +1,6 @@
 #!/usr/bin/env coffee
 
-ogr = require 'ogr'
+ogr = require '../'
 _   = require 'underscore'
 
 describe 'Geometry', ->

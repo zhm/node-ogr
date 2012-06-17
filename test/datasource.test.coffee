@@ -1,8 +1,8 @@
 #!/usr/bin/env coffee
 
+ogr  = require '../'
 fs   = require 'fs'
 path = require 'path'
-ogr  = require 'ogr'
 _    = require 'underscore'
 
 #ogr.quiet()
